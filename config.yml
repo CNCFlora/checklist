@@ -1,0 +1,15 @@
+development:
+    etcd: "http://192.168.50.16:4001"
+    db: "lista_flora"
+    lang: "pt"
+    base: ""
+test:
+    etcd: "http://192.168.50.16:4001"
+    lang: "pt"
+    db: "cncflora_test"
+    base: ""
+production:
+    etcd: "http://cncflora.jbrj.gov.br/etcd"
+    db: "cncflora2"
+    lang: "pt"
+    base: "/occurrences"
