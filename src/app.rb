@@ -31,15 +31,12 @@ config[:services] = "#{config[:dwc_services_url]}/api/v1"
 config[:base] = settings.base
 set :elasticsearch, config[:elasticsearch]
 
+puts "elasticsearch = #{settings.elasticsearch}"
+=begin
+puts "config = #{config}"
 puts "datahub = #{config[:datahub]}"
 puts "couchdb = #{config[:couchdb]}"
 puts "elasticsearch = #{config[:elasticsearch]}"
-=begin
-puts "datahub = #{config[:elasticsearch]}"
-puts "datahub = #{config[:datahub]}"
-puts "datahub = #{config[:datahub]}"
-puts "datahub = #{config[:datahub]}"
-puts "datahub = #{config[:datahub]}"
 =end
 
 
@@ -71,27 +68,24 @@ get "/" do
 end
 
 get '/families' do    
-    #docs = db.get_all()
-
-=begin
-    families = {}
-    docs = db.view("recorte","by_species")
-    docs.each do |doc|
-        if families[ doc[:value][:family] ].nil?
-            families[ doc[:value][:family] ] = []
-        end
-        families[ doc[:value][:family] ].push(doc)
-    end
-    puts docs
-    exit
-=end
-
+    families = []
     r = search("taxon","*")
-    puts "r = #{r}" 
-    exit
     r.each{|taxon|
         families.push taxon["family"]
     }
 
     view :families, {:families=>families.uniq.sort}
 end
+
+get '/family/:family' do
+    family = params[:family]
+=begin
+    species= search(settings.db,"family:\"#{family}\" AND taxomicStatus:\"accepted\" AND (taxonRank:\"species\" OR taxonRank:\"variety\" OR taxonRank:\"subspecie\")")
+                    .sort {|t1,t2| t1["scientificName"] <=> t2["scientificName"] }
+=end                    
+    species= search("taxon","family:\"#{family}\"")
+    puts "species = #{species}"                    
+
+    view :family, {:species=>species,:family=>family}
+end
+

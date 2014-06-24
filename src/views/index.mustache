@@ -1,0 +1,40 @@
+{{> header}}
+
+
+{{^logged}}
+<h2 class="col-md-12">{{strings.must-login}}</h2>
+{{/logged}}
+
+{{#logged}}
+
+<h2 class='col-md-12'>{{strings.start}}</h2>
+
+<div class="col-md-12">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{{strings.family}}</th>
+                <th>{{strings.specie}}</th>
+                <th>{{strings.reviewed}}</th>
+                <th>{{strings.validated}}</th>
+                <th>{{strings.total}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#species}}
+            <tr>
+                <td>{{family}}</td>
+                <td><a href="{{base}}/search?q=scientificName:'{{scientificName}}'">{{scientificName}}</a></td>
+                <td>{{reviewed}}</td>
+                <td>{{validated}}</td>
+                <td>{{total}}</td>
+            </tr>
+            {{/species}}
+        </tbody>
+    </table>
+</div>
+{{/logged}}
+
+
+
+{{> footer}}

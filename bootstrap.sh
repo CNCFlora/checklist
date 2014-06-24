@@ -32,6 +32,6 @@ fi
 # setup couchdb
 HUB=$(docker ps | grep couchdb | awk '{ print $10 }' | grep -e '[0-9]\{5\}' -o)
 #HUB=$(docker ps | grep datahub | awk '{ print $10 }' | grep -e '[0-9]\{5\}' -o)
-curl -X PUT http://localhost:$HUB/lista_flora
+curl -X PUT http://localhost:$HUB/checklist
 
 

@@ -1,6 +1,6 @@
 development:
     etcd: "http://192.168.50.16:4001"
-    db: "lista_flora"
+    db: "checklist"
     lang: "pt"
     base: ""
 test:
