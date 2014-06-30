@@ -32,8 +32,8 @@ config[:base] = settings.base
 set :elasticsearch, config[:elasticsearch]
 
 puts "elasticsearch = #{settings.elasticsearch}"
-=begin
 puts "config = #{config}"
+=begin
 puts "datahub = #{config[:datahub]}"
 puts "couchdb = #{config[:couchdb]}"
 puts "elasticsearch = #{config[:elasticsearch]}"
@@ -51,41 +51,20 @@ def view(page,data)
     mustache page, {}, @config.merge(@session_hash).merge(data)
 end
 
-post '/login' do
-    session[:logged] = true
-    session[:user] = JSON.parse(params[:user])
-    204
-end
-
-post '/logout' do
-    session[:logged] = false
-    session[:user] = false
-    204
-end
 
 get "/" do
-    "teste123"
+    mustache :index, {}
 end
 
-get '/families' do    
-    families = []
-    r = search("taxon","*")
-    r.each{|taxon|
-        families.push taxon["family"]
-    }
-
-    view :families, {:families=>families.uniq.sort}
+get "/new_checklist" do
+    mustache :new_checklist, {}
 end
 
-get '/family/:family' do
-    family = params[:family]
-=begin
-    species= search(settings.db,"family:\"#{family}\" AND taxomicStatus:\"accepted\" AND (taxonRank:\"species\" OR taxonRank:\"variety\" OR taxonRank:\"subspecie\")")
-                    .sort {|t1,t2| t1["scientificName"] <=> t2["scientificName"] }
-=end                    
-    species= search("taxon","family:\"#{family}\"")
-    puts "species = #{species}"                    
+get "/edit_checklist" do
+    mustache :edit_checklist, {}
+end
 
-    view :family, {:species=>species,:family=>family}
+get "/species" do
+    mustache :species, {}
 end
 
