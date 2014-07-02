@@ -8,15 +8,17 @@
             </tr>
         </thead>
         <tbody>
+        {{#databases}}
             <tr>
-                <td>Recorte xpto</td>
+                <td>{{doc.name}} - {{doc.description}}</td>
                 <td>
-                    <span class="glyphicon glyphicon-pencil"></span>
+                    <a href="{{base}}/edit/id/{{id}}/rev/{{doc._rev}}"><span class="glyphicon glyphicon-pencil"></span></a>
                 </td>
                 <td>
-                    <span class="glyphicon glyphicon-remove"></span>
+                    <a href="{{base}}/delete/id/{{id}}/rev/{{doc._rev}}"><span class="glyphicon glyphicon-remove"></span></a>
                 </td>
             </tr>
+        {{/databases}}
         </tbody>
     </table>
 {{> footer}}

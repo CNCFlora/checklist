@@ -1,15 +1,15 @@
 development:
     etcd: "http://192.168.50.16:4001"
-    db: "checklist"
+    db: "taxonomy"
     lang: "pt"
     base: ""
 test:
     etcd: "http://192.168.50.16:4001"
     lang: "pt"
-    db: "cncflora_test"
+    db: "taxonomy_test"
     base: ""
 production:
     etcd: "http://cncflora.jbrj.gov.br/etcd"
-    db: "cncflora2"
+    db: "taxonomy"
     lang: "pt"
     base: "/occurrences"

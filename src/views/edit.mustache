@@ -1,0 +1,15 @@
+{{> header}}
+    <div class="col-md-12">
+        <h2>{{name}}</h2>
+        <ul>
+            {{#families}}
+            <li><a href="{{base}}/edit/id/{{_id}}/rev/{{_rev}}/family/{{family}}">{{family}}</a></li>
+            {{/families}}
+        </ul>
+    </div>
+    <div class="btn-group">
+        <a href="{{base}}/" class="btn btn-success" role="button">Fechar</a>
+    </div>
+
+{{> footer}}
+

@@ -1,0 +1,22 @@
+{{> header}}
+    <form class="form-horizontal" action="{{base}}/edit" method="POST">
+        <div class="control-group">
+            <label class="control-label" for="inputName">Nome:</label>
+            <div class="controls">
+                <input type="text" id="name" name="name"  placeholder="Nome" >
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="input-description">Descrição</label>
+            <div class="controls">
+                <input type="text" id="description" name="description"  placeholder="Descrição">
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn-success">Salvar</button>
+                <a href="{{base}}/" class="btn btn-danger">Cancelar</a>
+            </div>
+        </div>
+    </form>
+{{> footer}}
