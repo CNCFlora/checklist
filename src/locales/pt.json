@@ -1,7 +1,10 @@
 {
+    "add":"Adicionar",
+    "checklist":"Recorte",
+    "system_checklist":"Ocorrências",
+    "delete_specie":"Excluir espécie",
+    "family":"Família",
     "login":"Login",
     "logout":"Logout",
-    "checklist":"Recorte",
-    "search":"Busca",
-    "family":"Família"
+    "summary":"Início"
 }

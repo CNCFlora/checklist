@@ -1,24 +1,35 @@
 {{> header}}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Recorte</th>   
-                <th>Editar</th>
-                <th>Excluir</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#databases}}
-            <tr>
-                <td>{{doc.name}} - {{doc.description}}</td>
-                <td>
-                    <a href="{{base}}/edit/id/{{id}}/rev/{{doc._rev}}"><span class="glyphicon glyphicon-pencil"></span></a>
-                </td>
-                <td>
-                    <a href="{{base}}/delete/id/{{id}}/rev/{{doc._rev}}"><span class="glyphicon glyphicon-remove"></span></a>
-                </td>
-            </tr>
-        {{/databases}}
-        </tbody>
-    </table>
+{{#logged}}
+    <div class="col-md-8">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>FAMÍLIAS</th>   
+                </tr>
+            </thead>
+            <tbody>
+            {{#families}}
+                <tr>
+                    <td><a href="{{base}}/edit/family/{{name}}">{{name}} / {{species_amount}}</a></td>
+                </tr>
+            {{/families}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-4">
+        <form action="{{base}}/insert/specie" method='POST'>
+        <h3>Adicionar espécie</h3>
+        <fieldset>
+            <div class='form-group'>
+                <input id="specie" name="specie" type="text" placeholder="" rel='complete' complete='roles'  class='form-control'/>
+            </div>
+            <button class="btn btn-success">Adicionar</button>
+        </fieldset>
+        </form>
+    </div>
+{{/logged}}
 {{> footer}}
+
+
+

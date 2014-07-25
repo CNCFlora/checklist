@@ -5,18 +5,96 @@
         <title>{{strings.checklist}}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link href="{{base}}/css/bootstrap.min.css" rel="stylesheet" >
-    </head>
-    <body>
-    <div class="container">
-        <header class="col-md-12">
-            <h1>Recorte</h1>
-        </header>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+        <script src="{{connect}}/js/connect.js"></script>
+        <script type="text/javascript">
+            var flora = "{{floradata_url}}";
+            var context=  "connect";
+            var logged = {{{logged}}};
+            var base = '{{base}}';
 
-        <nav class="navbar navbar-default col-md-12">
-            <div class="navbar-inner">
-                <ul class="nav navbar-nav">
-                    <li><a href="{{base}}/">Início</a></li>
-                    <li><a href="{{base}}/new">Novo</a></li>
-                </ul>
+        
+            $(document).ready(function(){
+        
+                $("#specie" ).autocomplete({
+                    source: function (request, response) {
+                    // AQUI FICA A CONSULTA: request.term
+                        //$.getJSON("http://cncflora.jbrj.gov.br:80/flora/api/v1/specie?scientificName="+request.term, function (data) {
+                        $.getJSON(flora+"/api/v1/search/species?query="+request.term, function (data) {
+                            console.log(data.result.scientificNameWithoutAuthorship);
+                            processResult(data.result, response, request.term);
+
+                        });
+                    }
+                });
+                        
+                function processResult(data, callback, searchTerm) {
+                    callback($.map(data, function (value) {
+                        var inputAutocomplete = value.scientificNameWithoutAuthorship.toLowerCase();
+                        if( inputAutocomplete.indexOf( searchTerm.toLowerCase() ) != -1 ) {
+                            console.log( searchTerm );
+                            return value = value.scientificNameWithoutAuthorship;
+                        }
+                    }));
+                };
+            });
+
+            $(function(){
+                    
+                Connect({
+                    context: context,
+                    onlogin: function(user) {
+                        if(!logged) {
+                            $.post(base+'/login','user='+JSON.stringify(user),function(){
+                                location.reload();
+                            });
+                        }
+                    },
+                    onlogout: function(nothing){
+                        if(logged) {
+                            $.post(base+'/logout',nothing,function(){
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+                                             
+                $("#login a").click(function(){ Connect.login(); });
+                $("#logout a").click(function(){ Connect.logout(); });
+                                                    
+                if(typeof map == 'function') {
+                    map();
+                }
+                    
+            });
+
+
+        </script>
+
+
+        </head>
+        <body>
+        <!--
+        <div class="container">
+            <div class="sixteen columns header">
+                <a href="{{base}}/"><h1>Recorte XPTO</h1></a>
             </div>
+        -->
+        <div class="container">
+        <header class='col-md-12'>
+            <a href="{{base}}/"><h1>{{strings.checklist}} - {{strings.system_checklist}}</h1></a>
+        </header>
+        <nav class="navbar navbar-default col-md-12">
+            <ul class="nav navbar-nav">
+                {{^logged}}
+                <li id='login'><a href="#">{{strings.login}}</a></li>
+                {{/logged}}
+                {{#logged}}
+                <li><a href="{{base}}/">{{strings.summary}}</a></li>
+                <li id='logout'><a href="#">{{strings.logout}}</a></li>
+                {{/logged}}
+            </ul>
         </nav>
+

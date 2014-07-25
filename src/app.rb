@@ -1,20 +1,19 @@
+#!/usr/bin/env ruby
 Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
 require 'sinatra'
 require 'sinatra/config_file'
 require 'sinatra/mustache'
-require "sinatra/reloader" if development?
+require 'sinatra/reloader' if development?
 
+
+require_relative 'couchdb_basic'
 require_relative 'cncflora_commons'
-require 'couchdb_basic'
 
-=begin
 if development?
-        also_reload "routes/*"
+        also_reload "src/views/*"
 end
-=end
-
 
 config_file ENV['config'] || '../config.yml'
 use Rack::Session::Pool
@@ -22,29 +21,12 @@ set :session_secret, '1flora2'
 set :views, 'src/views'
 
 config = etcd2settings(ENV["ETCD"] || settings.etcd)
-
-config[:connect] = "#{config[:connect_url]}"
-config[:datahub] = "#{config[:datahub_url]}"
 config[:couchdb] = "#{config[:datahub_url]}/#{settings.db}"
-#config[:elasticsearch] = "#{config[:datahub_url]}/#{settings.db}"
-config[:elasticsearch] = "#{config[:datahub_url]}"
+config[:elasticsearch] = "#{config[:datahub_url]}/#{settings.db}"
 config[:strings] = JSON.parse(File.read("src/locales/#{settings.lang}.json", :encoding => "BINARY"))
 config[:services] = "#{config[:dwc_services_url]}/api/v1"
 config[:base] = settings.base
 set :elasticsearch, config[:elasticsearch]
-
-puts "config = #{config}"
-checklists = "#{config[:datahub]}/checklists"
-taxonomy = "#{config[:datahub]}/taxonomy"
-
-
-#database = http_put("#{config[:datahub]}/test22222","")
-#puts "http_put = #{database}"
-=begin
-puts "datahub = #{config[:datahub]}"
-puts "couchdb = #{config[:couchdb]}"
-puts "elasticsearch = #{config[:elasticsearch]}"
-=end
 
 
 def view(page,data)
@@ -59,78 +41,93 @@ def view(page,data)
 end
 
 
+post '/login' do
+    session[:logged] = true
+    preuser =  JSON.parse(params[:user])
+    user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
+    session[:user] = user
+    204
+end
+
+
+post '/logout' do
+    session[:logged] = false
+    session[:user] = false
+    204
+end
+
+
 get "/" do
-    databases = http_get("#{checklists}/_all_docs?include_docs=true")
-    databases = databases["rows"]
-    view :index, {:databases=>databases}
-end
+    # Get all families of checklist.
+    species = search("taxon","*:*")
 
-get "/new" do
-    mustache :new, {}
-end
+    families = []
 
-get "/delete/id/:_id/rev/:_rev" do
-    http_delete("#{checklists}/#{params[:_id]}?rev=#{params[:_rev]}")
-    databases = http_get("#{checklists}/_all_docs?include_docs=true")
-    databases = databases["rows"]
-    view :index, {:databases=>databases}
-end
+    species.each do |specie|
+        families << specie["family"]
+    end
+    families = families.uniq.sort
 
-get "/edit/id/:_id/rev/:_rev" do
-    doc = {}
-    doc["_id"] = params["_id"]
-    doc["_rev"] = params["_rev"]
-    doc["metadata"] = {:type=>"checklist"}
-    families = search("taxonomy","metadata.type=\"taxonomy\" AND taxonRank:\"family\"")
-    families = families.sort_by {|f| f["family"]}
-    doc["families"] = families
-    view :edit, doc 
-end
+    docs = []
+    families.each do |family|
+        doc = { "name"=>family, "species_amount"=>0 }
+        items = species.select{ |specie| specie["family"] == family }
+        items.each do |specie|
+            doc["species_amount"] += 1
+        end
+        docs << doc
+    end
 
-get "/edit/id/:_id/rev/:_rev/family/:family" do
-    id = params[:_id]
-    checklist = search("checklists","metadata.type=\"checklist\" AND _id:\"#{id}\"").first
-    doc = {}
-    doc["name"] = checklist["name"]
-    doc["description"] = checklist["description"]
- 
-    puts "checklist = #{checklist}"
-
-    species = search("taxonomy","metadata.type=\"taxonomy\" AND taxonRank:\"species\" AND family:\"#{params[:family]}\"")    
-    puts "species = #{species}"
-    view :edit, {}
+    families = docs
+    view :index, {:families=>families}
 end
 
 
-post "/edit" do
-    doc = {}
-    doc["name"] = params["name"]
-    doc["description"] = params["description"]
-    doc["metadata"] = {:type=>"checklist"} 
-    result = http_post("#{checklists}",doc)
-    puts "result = #{result}"
-    doc["_id"] = result["id"]
-    doc["_rev"] = result["rev"]
-    families = search("taxonomy","metadata.type=\"taxonomy\" AND taxonRank:\"family\"")
-    families = families.sort_by {|f| f["family"]}
-    doc["families"] = families
-    view :edit, doc
+get "/edit/family/:family" do
+    family = params[:family]
+    species = search("taxon","family:\"#{family}\"")
+    species_by_family = []
+    species.each do |specie|
+        species_by_family << specie
+    end
+    docs = [ { "family"=>family,"species"=>species_by_family } ]
+    view :edit, {:docs=>docs}
 end
 
-=begin
-post "/edit/id/:_id/rev/:_rev" do
-    doc = {}
-    doc["_id"] = params["_id"]
-    doc["_rev"] = params["_rev"]
-    doc["metadata"] = {:type=>"checklist"} 
-    http_put("#{checklists}",doc)
-    families = search("#{taxonomy}","metadata.type=\"taxonomy\" AND taxonRank=\"family\"")
-    doc["families"] = families
-    view :edit, doc
-end
-=end
 
-get "/species" do
-    mustache :species, {}
+post "/insert/specie" do
+    specie = URI.encode( params["specie"] )
+    doc = http_get("#{config[:floradata_url]}/api/v1/specie?scientificName=#{specie}")["result"]
+    metadata = { 
+        "type"=>"taxon", 
+        "created"=>Time.now.to_i, 
+        "modified"=>Time.now.to_i, 
+        "creator"=>"#{session[:user]["name"]}", "contributor"=>"#{session[:user]["name"]}", "contact"=>"#{session[:user]["email"]}" 
+    }
+
+    if doc.has_key?("synonyms")
+        synonyms = []
+        doc["synonyms"].each{ |key|
+            key["metadata"] = metadata 
+            result = http_post( config[:couchdb], key ) 
+            synonyms << { "id" => result["id"], "rev"=>result["rev"] }
+        }
+        doc.delete("synonyms")
+        doc["synonyms"] = synonyms
+    end
+    doc["metadata"] = metadata
+    doc = http_post( config[:couchdb], doc )
+    redirect request.referrer
 end
 
+get "/delete/specie/:specie" do
+    specie = params[:specie]
+    specie = search("taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
+    if specie.has_key?("synonyms")
+        specie["synonyms"].each { |synonym|
+            doc = http_delete("#{config[:couchdb]}/#{synonym["id"]}?rev=#{synonym["rev"]}")
+        }
+    end
+    doc = http_delete("#{config[:couchdb]}/#{specie["id"]}?rev=#{specie["rev"]}")
+    redirect request.referrer
+end

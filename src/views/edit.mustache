@@ -1,15 +1,37 @@
 {{> header}}
-    <div class="col-md-12">
-        <h2>{{name}}</h2>
-        <ul>
-            {{#families}}
-            <li><a href="{{base}}/edit/id/{{_id}}/rev/{{_rev}}/family/{{family}}">{{family}}</a></li>
-            {{/families}}
-        </ul>
+    <div class="col-md-8">
+        <table class="table">
+            <thead>
+                <tr>
+                    {{#docs}}
+                    <th>{{family}}</th>
+                    <th>{{strings.delete_specie}}</th>
+                    {{/docs}}
+                </tr>
+            </thead>
+            <tbody>
+            {{#docs}}
+                {{#species}}
+                <tr>
+                    <td>{{scientificNameWithoutAuthorship}}</td>
+                    <td><a href="{{base}}/delete/specie/{{scientificNameWithoutAuthorship}}" class="glyphicon glyphicon-remove"></a></td>
+                </tr>
+                {{/species}}
+            {{/docs}}
+            </tbody>
+        </table>
     </div>
-    <div class="btn-group">
-        <a href="{{base}}/" class="btn btn-success" role="button">Fechar</a>
+
+    <div class="col-md-4">
+        <form action="{{base}}/insert/specie" method='POST'>
+        <h3>Adicionar espécie</h3>
+        <fieldset>
+            <div class='form-group'>
+                <input id="specie" name="specie" type="text" placeholder="" rel='complete' complete='roles'  class='form-control'/>
+            </div>
+            <button class="btn btn-success">Adicionar</button>
+        </fieldset>
+        </form>
     </div>
 
 {{> footer}}
-
