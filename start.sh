@@ -1,2 +1,6 @@
 #!/bin/bash
-couchdb
+
+cd /root/checklist
+
+unicorn
+

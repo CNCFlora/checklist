@@ -7,27 +7,9 @@ require 'sinatra/config_file'
 require 'sinatra/mustache'
 require 'sinatra/reloader' if development?
 
+require 'cncflora_commons'
 
-require_relative 'couchdb_basic'
-require_relative 'cncflora_commons'
-
-if development?
-        also_reload "src/views/*"
-end
-
-config_file ENV['config'] || '../config.yml'
-use Rack::Session::Pool
-set :session_secret, '1flora2'
-set :views, 'src/views'
-
-config = etcd2settings(ENV["ETCD"] || settings.etcd)
-config[:couchdb] = "#{config[:datahub_url]}/#{settings.db}"
-config[:elasticsearch] = "#{config[:datahub_url]}/#{settings.db}"
-config[:strings] = JSON.parse(File.read("src/locales/#{settings.lang}.json", :encoding => "BINARY"))
-config[:services] = "#{config[:dwc_services_url]}/api/v1"
-config[:base] = settings.base
-set :elasticsearch, config[:elasticsearch]
-
+setup '../config.yml'
 
 def view(page,data)
     @config = settings.config
@@ -40,22 +22,19 @@ def view(page,data)
     mustache page, {}, @config.merge(@session_hash).merge(data)
 end
 
-
 post '/login' do
     session[:logged] = true
-    preuser =  JSON.parse(params[:user])
+    preuser = JSON.parse(params[:user])
     user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
     session[:user] = user
     204
 end
-
 
 post '/logout' do
     session[:logged] = false
     session[:user] = false
     204
 end
-
 
 get "/" do
     # Get all families of checklist.
@@ -82,7 +61,6 @@ get "/" do
     view :index, {:families=>families}
 end
 
-
 get "/edit/family/:family" do
     family = params[:family]
     species = search("taxon","family:\"#{family}\"")
@@ -97,26 +75,31 @@ end
 
 post "/insert/specie" do
     specie = URI.encode( params["specie"] )
-    doc = http_get("#{config[:floradata_url]}/api/v1/specie?scientificName=#{specie}")["result"]
+
+    doc = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
+
     metadata = { 
         "type"=>"taxon", 
         "created"=>Time.now.to_i, 
         "modified"=>Time.now.to_i, 
-        "creator"=>"#{session[:user]["name"]}", "contributor"=>"#{session[:user]["name"]}", "contact"=>"#{session[:user]["email"]}" 
+        "creator"=>"#{session[:user]["name"]}", 
+        "contributor"=>"#{session[:user]["name"]}", 
+        "contact"=>"#{session[:user]["email"]}" 
     }
 
     if doc.has_key?("synonyms")
         synonyms = []
         doc["synonyms"].each{ |key|
             key["metadata"] = metadata 
-            result = http_post( config[:couchdb], key ) 
+            result = http_post( settings.couchdb, key ) 
             synonyms << { "id" => result["id"], "rev"=>result["rev"] }
         }
         doc.delete("synonyms")
         doc["synonyms"] = synonyms
     end
+
     doc["metadata"] = metadata
-    doc = http_post( config[:couchdb], doc )
+    doc = http_post( settings.couchdb, doc )
     redirect request.referrer
 end
 
@@ -125,9 +108,10 @@ get "/delete/specie/:specie" do
     specie = search("taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
     if specie.has_key?("synonyms")
         specie["synonyms"].each { |synonym|
-            doc = http_delete("#{config[:couchdb]}/#{synonym["id"]}?rev=#{synonym["rev"]}")
+            doc = http_delete("#{settings.couchdb}/#{synonym["id"]}?rev=#{synonym["rev"]}")
         }
     end
-    doc = http_delete("#{config[:couchdb]}/#{specie["id"]}?rev=#{specie["rev"]}")
+    doc = http_delete("#{settings.couchdb}/#{specie["id"]}?rev=#{specie["rev"]}")
     redirect request.referrer
 end
+

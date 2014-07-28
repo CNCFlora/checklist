@@ -1,18 +1,18 @@
-#Couchdb
+FROM cncflora/ruby
 
-FROM ubuntu:14.04 
+RUN gem install bundler
 
-RUN apt-get update -y
-RUN apt-get install couchdb wget -y
+RUN mkdir /root/checklist
+ADD Gemfile /root/checklist/Gemfile
+RUN cd /root/checklist && bundle install
+ADD . /root/checklist
 
-RUN sed -i -e 's/;bind_address = 127.0.0.1/bind_address = 0.0.0.0/' /etc/couchdb/local.ini
-RUN mkdir /var/run/couchdb  #   ???
-
-#VOLUME ["/var/lib/couchdb"]
-
-EXPOSE 5984
-
+ENV ENV production
+ENV RACK_ENV production
 ADD start.sh /root/start.sh
 RUN chmod +x /root/start.sh
 
+EXPOSE 8080
+
 CMD ["/root/start.sh"]
+

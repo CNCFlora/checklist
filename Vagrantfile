@@ -14,7 +14,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.network "private_network", ip: "192.168.50.16"
     config.vm.network :forwarded_port, host: 9292, guest: 9292, auto_correct: true
     
-
     config.vm.provision "docker" do |d|
         d.run "coreos/etcd", name:"etcd" , args: "-p 8001:80 -p 4001:4001 "
         d.run "cncflora/connect", name: "connect", args: "-P -v /var/connect:/var/floraconnect:rw"
@@ -22,6 +21,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         d.run "cncflora/floradata", name: "floradata", args: "-p 49155:80 "
     end
 
-    config.vm.provision :shell, :path => "bootstrap.sh"
-
+    config.vm.provision :shell, :path => "vagrant.sh"
 end

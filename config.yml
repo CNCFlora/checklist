@@ -1,15 +1,18 @@
 development:
     etcd: "http://192.168.50.16:4001"
-    db: "cncflora_occurrence"
+    db: "cncflora"
     lang: "pt"
+    context: "connect"
     base: ""
 test:
     etcd: "http://192.168.50.16:4001"
     lang: "pt"
-    db: "taxonomy_test"
+    db: "cncflora_test"
+    context: "connect"
     base: ""
 production:
     etcd: "http://cncflora.jbrj.gov.br/etcd"
-    db: "taxonomy"
+    db: "cncflora"
     lang: "pt"
-    base: "/occurrences"
+    context: "connect"
+    base: "/checklist"

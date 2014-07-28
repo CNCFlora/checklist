@@ -7,9 +7,10 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'sinatra-mustache'
 gem 'sinatra-config-file'
-#gem 'cncflora_commons'
 
 gem 'rest-client'
+gem 'couchdb_basic'
+gem 'cncflora_commons'
 
 gem 'rspec'
 gem 'rspec-html-matchers'
@@ -17,6 +18,3 @@ gem 'rack-test'
 
 gem 'unicorn'
 
-gem 'couchdb_basic'
-
-gem 'roo'
