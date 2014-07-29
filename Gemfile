@@ -9,7 +9,6 @@ gem 'sinatra-mustache'
 gem 'sinatra-config-file'
 
 gem 'rest-client'
-gem 'couchdb_basic'
 gem 'cncflora_commons'
 
 gem 'rspec'

@@ -13,9 +13,14 @@
             {{#docs}}
                 {{#species}}
                 <tr>
-                    <td>{{scientificNameWithoutAuthorship}}</td>
+                    <td id="species">{{scientificNameWithoutAuthorship}}</td>
                     <td><a href="{{base}}/delete/specie/{{scientificNameWithoutAuthorship}}" class="glyphicon glyphicon-remove"></a></td>
                 </tr>
+                {{#synonyms}}
+                <tr>
+                    <td id="synonym">&nbsp;&nbsp;&nbsp;&nbsp;{{scientificNameWithoutAuthorship}} (synonym)</td>
+                </tr>
+                {{/synonyms}}
                 {{/species}}
             {{/docs}}
             </tbody>

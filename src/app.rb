@@ -24,6 +24,7 @@ end
 
 post '/login' do
     session[:logged] = true
+    puts "params: #{params[:user]}"
     preuser = JSON.parse(params[:user])
     user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
     session[:user] = user
@@ -49,7 +50,7 @@ get "/" do
 
     docs = []
     families.each do |family|
-        doc = { "name"=>family, "species_amount"=>0 }
+        doc = { "name"=>family.upcase, "species_amount"=>0 }
         items = species.select{ |specie| specie["family"] == family }
         items.each do |specie|
             doc["species_amount"] += 1
@@ -62,13 +63,28 @@ get "/" do
 end
 
 get "/edit/family/:family" do
-    family = params[:family]
-    species = search("taxon","family:\"#{family}\"")
+    # Get taxon by family
+    family = params[:family].upcase
+    species = search("taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\"")
     species_by_family = []
+
     species.each do |specie|
+        # Check synonyms in specie
+        if specie.has_key?("synonyms")
+            synonyms = []
+            specie["synonyms"].each do |synonym|
+                doc = http_get("#{settings.couchdb}/#{synonym["id"]}")
+                synonym["scientificNameWithoutAuthorship"] = doc["scientificNameWithoutAuthorship"]
+                specie["synonyms"][ specie["synonyms"].index(synonym) ] = synonym
+            end
+            puts "specie w synonyms: #{specie}"
+        end
+
         species_by_family << specie
+        puts "species b family = #{species_by_family}"
     end
     docs = [ { "family"=>family,"species"=>species_by_family } ]
+    puts "docs: #{docs}"
     view :edit, {:docs=>docs}
 end
 
