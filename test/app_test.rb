@@ -23,19 +23,23 @@ describe "Web app" do
         post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}' }
     end
 
-    it "Can insert specie" do
+    it "Inserts specie without synonym" do
         specie_without_synonym = "Aphelandra acrensis"
-        specie_with_synonym = "Aphelandra blanchetiana"
         doc = http_get("http://192.168.50.16:49155/api/v1/specie?scientificName=#{URI.encode(specie_without_synonym)}")["result"]
-        #doc = http_get("#{settings.flora}/api/v1/search/species?query=Aphelandra blanchetiana")
-        puts "doc - #{doc}"
         post "/insert/specie", { "specie" => doc["scientificNameWithoutAuthorship"] }
-        last_response.status.should eq(302)
+        expect( last_response.status ).to eq(302)
         sleep 2
         get "/"
-        last_response.body.should have_tag( "a", with: { href: "/edit/family/ACANTHACEAE"} )
+        expect( last_response.body ).to have_tag( "a", with: { href: "/edit/family/ACANTHACEAE"} )
         get "/edit/family/ACANTHACEAE"
-        last_response.body.should hava_tag( "th", "ACANTHACEAE")
-
+        expect( last_response.body ).to have_tag( "td", :text => specie_without_synonym )
+        get "delete/specie/#{URI.escape(specie_without_synonym)}"
     end
+
+    it "Inserts specie with synonym" do
+        #specie_with_synonym = "Aphelandra blanchetiana"
+        pending( "Not yet implemented." )
+        this_should_not_get_executed
+    end
+
 end

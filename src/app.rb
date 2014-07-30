@@ -24,7 +24,6 @@ end
 
 post '/login' do
     session[:logged] = true
-    puts "params: #{params[:user]}"
     preuser = JSON.parse(params[:user])
     user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
     session[:user] = user
@@ -97,14 +96,10 @@ post "/insert/specie" do
     }
 
     if doc.has_key?("synonyms")
-        #synonyms = []
         doc["synonyms"].each{ |key|
             key["metadata"] = metadata 
             result = http_post( settings.couchdb, key ) 
-            #synonyms << { "id" => result["id"], "rev"=>result["rev"] }
         }
-        #doc.delete("synonyms")
-        #doc["synonyms"] = synonyms
     end
 
     doc["metadata"] = metadata
