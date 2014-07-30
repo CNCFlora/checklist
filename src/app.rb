@@ -70,21 +70,14 @@ get "/edit/family/:family" do
 
     species.each do |specie|
         # Check synonyms in specie
-        if specie.has_key?("synonyms")
-            synonyms = []
-            specie["synonyms"].each do |synonym|
-                doc = http_get("#{settings.couchdb}/#{synonym["id"]}")
-                synonym["scientificNameWithoutAuthorship"] = doc["scientificNameWithoutAuthorship"]
-                specie["synonyms"][ specie["synonyms"].index(synonym) ] = synonym
-            end
-            puts "specie w synonyms: #{specie}"
+        synonyms = search("taxon", "family:\"#{family}\" AND taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificName"]}\"*")
+        specie["synonyms"] = [] if synonyms.size > 0
+        synonyms.each do |synonym|
+            specie["synonyms"] << { "scientificNameWithoutAuthorship" => synonym["scientificNameWithoutAuthorship"] } 
         end
-
         species_by_family << specie
-        puts "species b family = #{species_by_family}"
     end
     docs = [ { "family"=>family,"species"=>species_by_family } ]
-    puts "docs: #{docs}"
     view :edit, {:docs=>docs}
 end
 
@@ -104,14 +97,14 @@ post "/insert/specie" do
     }
 
     if doc.has_key?("synonyms")
-        synonyms = []
+        #synonyms = []
         doc["synonyms"].each{ |key|
             key["metadata"] = metadata 
             result = http_post( settings.couchdb, key ) 
-            synonyms << { "id" => result["id"], "rev"=>result["rev"] }
+            #synonyms << { "id" => result["id"], "rev"=>result["rev"] }
         }
-        doc.delete("synonyms")
-        doc["synonyms"] = synonyms
+        #doc.delete("synonyms")
+        #doc["synonyms"] = synonyms
     end
 
     doc["metadata"] = metadata

@@ -34,5 +34,8 @@ describe "Web app" do
         sleep 2
         get "/"
         last_response.body.should have_tag( "a", with: { href: "/edit/family/ACANTHACEAE"} )
+        get "/edit/family/ACANTHACEAE"
+        last_response.body.should hava_tag( "th", "ACANTHACEAE")
+
     end
 end
