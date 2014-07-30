@@ -69,7 +69,7 @@ get "/edit/family/:family" do
 
     species.each do |specie|
         # Check synonyms in specie
-        synonyms = search("taxon", "family:\"#{family}\" AND taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificName"]}\"*")
+        synonyms = search("taxon", "family:\"#{family}\" AND taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificName"]}*\"")
         specie["synonyms"] = [] if synonyms.size > 0
         synonyms.each do |synonym|
             specie["synonyms"] << { "scientificNameWithoutAuthorship" => synonym["scientificNameWithoutAuthorship"] } 
@@ -110,12 +110,12 @@ end
 get "/delete/specie/:specie" do
     specie = params[:specie]
     specie = search("taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
-    if specie.has_key?("synonyms")
-        specie["synonyms"].each { |synonym|
+    doc = http_delete("#{settings.couchdb}/#{specie["id"]}?rev=#{specie["rev"]}")
+
+    search("taxon","acceptedNameUsage:\"#{specie["scientificName"]}*\"")
+        .each { |synonym|
             doc = http_delete("#{settings.couchdb}/#{synonym["id"]}?rev=#{synonym["rev"]}")
         }
-    end
-    doc = http_delete("#{settings.couchdb}/#{specie["id"]}?rev=#{specie["rev"]}")
     redirect request.referrer
 end
 
