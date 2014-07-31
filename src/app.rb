@@ -110,11 +110,11 @@ end
 get "/delete/specie/:specie" do
     specie = params[:specie]
     specie = search("taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
-    if specie.has_key?("synonyms")
-        specie["synonyms"].each { |synonym|
-            doc = http_delete("#{settings.couchdb}/#{synonym["id"]}?rev=#{synonym["rev"]}")
-        }
-    end
+    synonyms = search( "taxon","acceptedName:\"#{specie["acceptedName"]}\"* AND taxonomicStatus:\"synonym\"" )
+    synonyms.each { |synonym|
+        #puts "uri_delete: #{settings.couchdb}/#{doc["id"]}?rev=#{doc["rev"]}"
+        doc = http_delete("#{settings.couchdb}/#{synonym["id"]}?rev=#{synonym["rev"]}")
+    }
     doc = http_delete("#{settings.couchdb}/#{specie["id"]}?rev=#{specie["rev"]}")
     redirect request.referrer
 end
