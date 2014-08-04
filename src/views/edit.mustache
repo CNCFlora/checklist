@@ -13,12 +13,12 @@
             {{#docs}}
                 {{#species}}
                 <tr>
-                    <td id="species">{{scientificNameWithoutAuthorship}}</td>
+                    <td class="species"><span>{{scientificNameWithoutAuthorship}}<span></td>
                     <td><a href="{{base}}/delete/specie/{{scientificNameWithoutAuthorship}}" class="glyphicon glyphicon-remove"></a></td>
                 </tr>
                 {{#synonyms}}
                 <tr>
-                    <td id="synonym">&nbsp;&nbsp;&nbsp;&nbsp;{{scientificNameWithoutAuthorship}} (synonym)</td>
+                    <td class="synonym">&nbsp;&nbsp;&nbsp;&nbsp;<span>{{scientificNameWithoutAuthorship}}</span> (synonym)</td>
                 </tr>
                 {{/synonyms}}
                 {{/species}}
@@ -32,7 +32,7 @@
         <h3>Adicionar espécie</h3>
         <fieldset>
             <div class='form-group'>
-                <input id="specie" name="specie" type="text" placeholder="" rel='complete' complete='roles'  class='form-control'/>
+                <input class="specie" name="specie" type="text" placeholder="" rel='complete' complete='roles'  class='form-control'/>
             </div>
             <button class="btn btn-success">Adicionar</button>
         </fieldset>

@@ -1,3 +1,5 @@
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
 ENV['RACK_ENV'] = 'test'
 
 require_relative '../src/app'
@@ -20,7 +22,7 @@ describe "Web app" do
 
     before(:all) do
         @specie_without_synonym = "Aphelandra acrensis"
-        @specie_with_synonym = "Aphelandra blanchetiana"
+        @specie_with_synonym = { "specie" => "Aphelandra blanchetiana", "synonyms" => [ "Aphelandra clava","Strobilorhachis blanchetiana" ] }     
     end
 
     before(:each) do
@@ -33,8 +35,7 @@ describe "Web app" do
     end
 
     it "Inserts specie without synonym" do
-        doc = http_get("http://192.168.50.16:49155/api/v1/specie?scientificName=#{URI.encode(@specie_without_synonym)}")["result"]
-        post "/insert/specie", { "specie" => doc["scientificNameWithoutAuthorship"] }
+        post "/insert/specie", { "specie" => @specie_without_synonym }
         expect( last_response.status ).to eq(302)
         sleep 2
         get "/"
@@ -42,43 +43,69 @@ describe "Web app" do
         expect( last_response.body ).to have_tag( "td", :text => "ACANTHACEAE / 1")
         get "/edit/family/ACANTHACEAE"
         expect( last_response.body ).to have_tag( "td", :text => @specie_without_synonym )
-        expect( last_response.body ).to have_tag( "td", :with => { :id => 'species'} )
-        get "delete/specie/#{URI.escape(@specie_without_synonym)}"
+        expect( last_response.body ).to have_tag( "td", :with => { :class => 'species'} )
+        get "/delete/specie/#{URI.escape( @specie_without_synonym )}"
     end
 
     it "Inserts specie with synonym" do
-        doc = http_get("http://192.168.50.16:49155/api/v1/specie?scientificName=#{URI.encode(@specie_with_synonym)}")["result"]
-        synonyms = doc["synonyms"]
-        #synonyms = search( "taxon", "taxonomicStatus:synonym AND acceptedNameUsage:\"#{specie_with_synonym}\"*")
-        post "/insert/specie", { "specie"=> doc["scientificNameWithoutAuthorship"] }
+        post "/insert/specie", { "specie"=> @specie_with_synonym["specie"] }
         expect( last_response.status ).to eq(302)
         sleep 2
         get "/"
         expect( last_response.body ).to have_tag( "a", with: { href: "/edit/family/ACANTHACEAE"} )
         get "/edit/family/ACANTHACEAE"
-        expect( last_response.body ).to have_tag( "td", :text => @specie_with_synonym )
-        expect( last_response.body ).to have_tag( "td", :with => { :id => 'species'} )
-        #synonyms.each do |synonym|
-        #    expect( last_response.body ).to have_tag( "td#species", :text => "    #{synonym["scientificNameWithoutAuthorship"]} (synonym)" )
-        #end
-        (1..synonyms.size).each do |i|
-            expect( last_response.body ).to have_tag( "td#species" )
+        expect( last_response.body ).to have_tag( "td", :text => @specie_with_synonym["specie"] )
+        expect( last_response.body ).to have_tag( "td", :with => { :class => 'species'} )
+        (0..1).each do |i|
+            expect( last_response.body ).to have_tag("td span", :text => @specie_with_synonym["synonyms"][i] )
         end
-        get "delete/specie/#{URI.escape(@specie_with_synonym)}"
+        get "/delete/specie/#{URI.escape( @specie_with_synonym["specie"] )}"
     end
 
     it "Edits specie without synonym" do
         post "/insert/specie", { "specie" => @specie_without_synonym }
-        expect( last_response.status ).to eq(302)
+        expect( last_response.status ).to eq( 302 )
         sleep 2
         get "/edit/family/ACANTHACEAE"
-        expect( last_response.body ).to have_tag( "td", :text => @specie_without_synonym["scientificNameWithoutAuthorship"] )
-        get "delete/specie/#{URI.escape(@specie_without_synonym)}"
+        expect( last_response.body ).to have_tag( "td span", :text => @specie_without_synonym )
+        get "/delete/specie/#{URI.escape( @specie_without_synonym )}"
     end
 
     it "Edits specie with synonym" do
-        pending( "Not yet implemented." )
-        this_should_not_get_executed
+        post "/insert/specie", { "specie" => @specie_with_synonym["specie"] }
+        expect( last_response.status ).to eq( 302 )
+        sleep 2
+        get "/edit/family/ACANTHACEAE"
+        expect( last_response.body ).to have_tag( "td span", :text => @specie_with_synonym["specie"] )
+        get "/delete/specie/#{URI.escape( @specie_with_synonym["specie"] )}"
+    end
+
+    it "Delete specie without synonym" do
+        post "/insert/specie", { "specie" => @specie_without_synonym }
+        expect( last_response.status ).to eq( 302 )
+        sleep 2
+        get "/edit/family/ACANTHACEAE"
+        expect( last_response.body ).to have_tag( "td span", :text => @specie_without_synonym )
+        get "/delete/specie/#{URI.escape( @specie_without_synonym )}"
+        expect( last_response.status ).to eq(302)
+        expect( last_response.body ).not_to have_tag( "td span", :tex => @specie_without_synonym )
+    end
+
+    it "Delete specie with synonym" do
+        post "/insert/specie", { "specie" => @specie_with_synonym["specie"] }
+        expect( last_response.status ).to eq( 302 )
+        sleep 2
+        get "/edit/family/ACANTHACEAE"
+        expect( last_response.body ).to have_tag( "td span", :text => @specie_with_synonym["specie"] )
+        (0..1).each do |i|
+            expect( last_response.body ).to have_tag( "td span", :text => @specie_with_synonym["synonyms"][i] )
+        end
+        get "/delete/specie/#{URI.escape( @specie_with_synonym["specie"] )}"
+        expect( last_response.status ).to eq(302)
+        expect( last_response.body ).not_to have_tag( "td span", :tex => @specie_with_synonym["specie"] )
+        (0..1).each do |i|
+            expect( last_response.body ).not_to have_tag( "td span", :text => @specie_with_synonym["synonyms"][i] )
+        end
     end
 
 end

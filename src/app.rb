@@ -52,7 +52,7 @@ get "/" do
         doc = { "name"=>family.upcase, "species_amount"=>0 }
         items = species.select{ |specie| specie["family"] == family }
         items.each do |specie|
-            doc["species_amount"] += 1
+            doc["species_amount"] += 1 if specie["taxonomicStatus"] == "accepted"
         end
         docs << doc
     end
@@ -61,21 +61,21 @@ get "/" do
     view :index, {:families=>families}
 end
 
+
 get "/edit/family/:family" do
     # Get taxon by family
     family = params[:family].upcase
     species = search("taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\"")
     species_by_family = []
-
     species.each do |specie|
-        # Check synonyms in specie
-        synonyms = search("taxon", "family:\"#{family}\" AND taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificName"]}\"*")
+        synonyms = search("taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"")
         specie["synonyms"] = [] if synonyms.size > 0
         synonyms.each do |synonym|
             specie["synonyms"] << { "scientificNameWithoutAuthorship" => synonym["scientificNameWithoutAuthorship"] } 
         end
         species_by_family << specie
     end
+    species_by_family = species_by_family.sort_by { |element| element["scientificNameWithoutAuthorship"]}
     docs = [ { "family"=>family,"species"=>species_by_family } ]
     view :edit, {:docs=>docs}
 end
@@ -110,11 +110,14 @@ end
 get "/delete/specie/:specie" do
     specie = params[:specie]
     specie = search("taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
-    synonyms = search( "taxon","acceptedName:\"#{specie["acceptedName"]}\"* AND taxonomicStatus:\"synonym\"" )
+
+    q = "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\""
+    synonyms = search("taxon", q)
+
     synonyms.each { |synonym|
-        #puts "uri_delete: #{settings.couchdb}/#{doc["id"]}?rev=#{doc["rev"]}"
         doc = http_delete("#{settings.couchdb}/#{synonym["id"]}?rev=#{synonym["rev"]}")
     }
+
     doc = http_delete("#{settings.couchdb}/#{specie["id"]}?rev=#{specie["rev"]}")
     redirect request.referrer
 end
