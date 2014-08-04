@@ -12,7 +12,8 @@ $(function(){
     function processResult(data, callback, searchTerm) {
         callback($.map(data, function (value) {
             var inputAutocomplete = value.scientificNameWithoutAuthorship.toLowerCase();
-            if( inputAutocomplete.indexOf( searchTerm.toLowerCase() ) != -1 ) {
+            if( inputAutocomplete.indexOf( searchTerm.toLowerCase() ) != -1 
+                && value.family.length >= 1) {
                 return value = value.scientificNameWithoutAuthorship;
             }
         }));

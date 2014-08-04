@@ -24,9 +24,9 @@ fi
 # docker register to etcd
 if [[ ! -e /root/.ops_done ]]; then
     gem install small-ops
-    docker2etcd -h 192.168.50.16
     touch /root/.ops_done
 fi
+docker2etcd -h 192.168.50.16
 
 # setup couchdb
 if [[ ! -e /root/.db_done ]]; then

@@ -69,6 +69,7 @@ get "/edit/family/:family" do
     species_by_family = []
     species.each do |specie|
         synonyms = search("taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"")
+        # Check synonyms in specie
         specie["synonyms"] = [] if synonyms.size > 0
         synonyms.each do |synonym|
             specie["synonyms"] << { "scientificNameWithoutAuthorship" => synonym["scientificNameWithoutAuthorship"] } 
