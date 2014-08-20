@@ -66,7 +66,7 @@ end
 get "/edit/family/:family" do
     # Get taxon by family
     family = params[:family].upcase
-    species = search("taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\"")
+    species = search("taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
     species_by_family = []
     species.each do |specie|
         synonyms = search("taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"")
