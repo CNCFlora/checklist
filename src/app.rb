@@ -22,6 +22,7 @@ def view(page,data)
     mustache page, {}, @config.merge(@session_hash).merge(data)
 end
 
+
 post '/login' do
     session[:logged] = true
     preuser = JSON.parse(params[:user])
@@ -87,24 +88,33 @@ post "/insert/specie" do
 
     doc = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
 
-    metadata = { 
-        "type"=>"taxon", 
-        "created"=>Time.now.to_i, 
-        "modified"=>Time.now.to_i, 
-        "creator"=>"#{session[:user]["name"]}", 
-        "contributor"=>"#{session[:user]["name"]}", 
-        "contact"=>"#{session[:user]["email"]}" 
-    }
+    # Verify if the specie already exists.
+    result = http_get( "#{settings.couchdb}/#{doc["taxonID"]}?include_docs=false")
 
-    if doc.has_key?("synonyms")
-        doc["synonyms"].each{ |key|
-            key["metadata"] = metadata 
-            result = http_post( settings.couchdb, key ) 
+    if result["error"]
+        metadata = { 
+            "type"=>"taxon", 
+            "created"=>Time.now.to_i, 
+            "modified"=>Time.now.to_i, 
+            "creator"=>"#{session[:user]["name"]}", 
+            "contributor"=>"#{session[:user]["name"]}", 
+            "contact"=>"#{session[:user]["email"]}" 
         }
+
+        if doc.has_key?("synonyms")
+            doc["synonyms"].each{ |key|
+                key["metadata"] = metadata 
+                result = http_post( settings.couchdb, key ) 
+            }
+        end
+
+        doc["metadata"] = metadata
+        doc["_id"] = doc["taxonID"]
+        puts "doc json = #{doc}"
+        doc = http_post( settings.couchdb, doc )
+        puts "doc inserted: #{doc}"
     end
 
-    doc["metadata"] = metadata
-    doc = http_post( settings.couchdb, doc )
     redirect request.referrer
 end
 
