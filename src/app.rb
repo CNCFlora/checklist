@@ -11,6 +11,15 @@ require 'cncflora_commons'
 
 setup '../config.yml'
 
+
+def require_logged_in
+    redirect('/') unless is_authenticated?
+end
+ 
+def is_authenticated?
+    return !!session[:logged]
+end
+
 def view(page,data)
     @config = settings.config
     @session_hash = {:logged => session[:logged] || false, :user => session[:user] || '{}'}
@@ -64,6 +73,9 @@ end
 
 
 get "/edit/family/:family" do
+    require_logged_in
+
+
     # Get taxon by family
     family = params[:family].upcase
     species = search("taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
