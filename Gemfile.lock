@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     backports (3.6.0)
-    cncflora_commons (0.0.15)
+    cncflora_commons (0.0.22)
     diff-lcs (1.2.5)
     kgio (2.9.2)
     mini_portile (0.6.0)
@@ -20,17 +20,17 @@ GEM
       rspec-core (~> 3.0.0)
       rspec-expectations (~> 3.0.0)
       rspec-mocks (~> 3.0.0)
-    rspec-core (3.0.3)
+    rspec-core (3.0.4)
       rspec-support (~> 3.0.0)
-    rspec-expectations (3.0.3)
+    rspec-expectations (3.0.4)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.0.0)
     rspec-html-matchers (0.6.1)
       nokogiri (~> 1)
       rspec (~> 3)
-    rspec-mocks (3.0.3)
+    rspec-mocks (3.0.4)
       rspec-support (~> 3.0.0)
-    rspec-support (3.0.3)
+    rspec-support (3.0.4)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -58,7 +58,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cncflora_commons
+  cncflora_commons (= 0.0.22)
   rack-test
   rspec
   rspec-html-matchers
