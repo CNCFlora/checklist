@@ -12,8 +12,6 @@ RUN cd /root/checklist && bundle install
 
 ADD supervisord.conf /etc/supervisor/conf.d/proxy.conf
 
-ADD . /root/checklist
-
 ENV ENV production
 ENV RACK_ENV production
 
@@ -21,4 +19,6 @@ EXPOSE 8080
 EXPOSE 9001
 
 CMD ["supervisord"]
+
+ADD . /root/checklist
 
