@@ -48,7 +48,7 @@ end
 
 get "/" do
     # Get all families of checklist.
-    species = search("taxon","*:*")
+    species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
 
     families = []
 
@@ -62,7 +62,7 @@ get "/" do
         doc = { "name"=>family.upcase, "species_amount"=>0 }
         items = species.select{ |specie| specie["family"] == family }
         items.each do |specie|
-            doc["species_amount"] += 1 if specie["taxonomicStatus"] == "accepted"
+            doc["species_amount"] += 1
         end
         docs << doc
     end
