@@ -7,6 +7,8 @@ require 'sinatra/config_file'
 require 'sinatra/mustache'
 require 'sinatra/reloader' if development?
 
+require 'securerandom'
+
 require 'cncflora_commons'
 
 setup '../config.yml'
@@ -75,7 +77,6 @@ end
 get "/edit/family/:family" do
     require_logged_in
 
-
     # Get taxon by family
     family = params[:family].upcase
     species = search("taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
@@ -96,6 +97,8 @@ end
 
 
 post "/insert/specie" do
+    require_logged_in
+
     specie = URI.encode( params["specie"] )
 
     doc = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
@@ -105,6 +108,7 @@ post "/insert/specie" do
 
     if result["error"]
         metadata = { 
+            "id"=>doc["taxonID"],
             "type"=>"taxon", 
             "created"=>Time.now.to_i, 
             "modified"=>Time.now.to_i, 
@@ -122,15 +126,53 @@ post "/insert/specie" do
 
         doc["metadata"] = metadata
         doc["_id"] = doc["taxonID"]
-        puts "doc json = #{doc}"
         doc = http_post( settings.couchdb, doc )
-        puts "doc inserted: #{doc}"
     end
 
     redirect request.referrer
 end
 
+post "/insert/new" do
+    require_logged_in
+
+    if !params.has_key?("family") || !params.has_key?("scientificNameWithoutAuthorship") || !params.has_key?("scientificNameAuthorship") || !params.has_key?("taxonomicStatus")
+        return 400, "Missing data #{params}"
+    else
+        params["scientificName"]="#{params[ "scientificNameWithoutAuthorship" ]} #{params["scientificNameAuthorship"]}"
+        if params["taxonomicStatus"] == 'synonym' && !params.has_key?("acceptedNameUsage")
+            return 400, "Missing accepted name #{params}"
+        else
+            if params["taxonomicStatus"]=='accepted' 
+                params["acceptedNameUsage"] = params["scientificName"]
+            end
+            id = SecureRandom.uuid
+            doc = {
+                "taxonID"=>id,
+                "scientificName"=>params["scientificName"],
+                "scientificNameWithoutAuthorship"=>params["scientificNameWithoutAuthorship"],
+                "scientificNameAuthorship"=>params["scientificNameAuthorship"],
+                "family"=>params["family"],
+                "taxonomicStatus"=>params["taxonomicStatus"],
+                "acceptedNameUsage"=>params["acceptedNameUsage"],
+                "metadata" => { 
+                    "identifier"=>id,
+                    "type"=>"taxon", 
+                    "created"=>Time.now.to_i, 
+                    "modified"=>Time.now.to_i, 
+                    "creator"=>"#{session[:user]["name"]}", 
+                    "contributor"=>"#{session[:user]["name"]}", 
+                    "contact"=>"#{session[:user]["email"]}" 
+                }
+            }
+            r = http_post(settings.couchdb,doc)
+            redirect request.referrer
+        end
+    end
+end
+
 get "/delete/specie/:specie" do
+    require_logged_in
+
     specie = params[:specie]
     specie = search("taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
 
@@ -143,5 +185,10 @@ get "/delete/specie/:specie" do
 
     doc = http_delete("#{settings.couchdb}/#{specie["id"]}?rev=#{specie["rev"]}")
     redirect request.referrer
+end
+
+get "/search/accepted" do
+    content_type :json
+    search("taxon","scientificName:\"#{params["query"]}*\"").to_json
 end
 

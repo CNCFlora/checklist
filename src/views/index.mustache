@@ -19,7 +19,7 @@
 
     <div class="col-md-4">
         <form action="{{base}}/insert/specie" method='POST'>
-        <h3>Adicionar espécie</h3>
+        <h3>Adicionar espécie da Flora do Brasil</h3>
         <fieldset>
             <div class='form-group'>
                 <input id="specie" name="specie" type="text" placeholder="" rel='complete' complete='roles'  class='form-control'/>
@@ -27,6 +27,37 @@
             <button class="btn btn-success">Adicionar</button>
         </fieldset>
         </form>
+        <form action="{{base}}/insert/new" method='POST' class='form'>
+        <h3>Adicionar espécie sem Flora do Brasil</h3>
+        <fieldset>
+            <legend>Caso a espécie a inserir não exista na Flora do Brasil ou esteja errada na mesma.</legend>
+            <div class='form-group'>
+                <label for="family">Familia</label>
+                <input name="family" type="text" placeholder="Acanthaceae" class='form-control'/>
+            </div>
+            <div class='form-group'>
+                <label for="scientificNameWithoutAuthorship">Nome cientifico</label>
+                <input name="scientificNameWithoutAuthorship" type="text" placeholder="Aphelandra longiflora" class='form-control'/>
+            </div>
+            <div class='form-group'>
+                <label for="scientificNameAuthorship">Autor(a)</label>
+                <input name="scientificNameAuthorship" type="text" placeholder="S.Profice" class='form-control'/>
+            </div>
+            <div class='form-group'>
+                <label for="taxonomicStatus">Status</label>
+                <select id="taxonomicStatus" name="taxonomicStatus">
+                    <option value="accepted">Aceito</option>
+                    <option value="synonym">Sinônimo</option>
+                </select>
+            </div>
+            <div class='form-group'>
+                <label for="acceptedNameUsage">Nome aceito com autor (se sinônimo)</label>
+                <input id="acceptedNameUsage" name="acceptedNameUsage" type="text" placeholder="Aphelandra longiflora S.Profice" class='form-control'/>
+            </div>
+            <button class="btn btn-success">Adicionar</button>
+        </fieldset>
+        </form>
+    </div>
     </div>
 {{/logged}}
 {{> footer}}

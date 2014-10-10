@@ -8,6 +8,15 @@ $(function(){
             });
         }
     });
+
+    $("#acceptedNameUsage").autocomplete({
+        source: function (request, response) {
+            $.getJSON(base+"/search/accepted?query="+request.term, function (data) {
+                    console.log(data);
+                processResult(data, response, request.term);
+            });
+        }
+    });
             
     function processResult(data, callback, searchTerm) {
         callback($.map(data, function (value) {
