@@ -152,6 +152,7 @@ post "/insert/new" do
                 "scientificNameWithoutAuthorship"=>params["scientificNameWithoutAuthorship"],
                 "scientificNameAuthorship"=>params["scientificNameAuthorship"],
                 "family"=>params["family"],
+                "taxonRank"=>params["taxonRank"],
                 "taxonomicStatus"=>params["taxonomicStatus"],
                 "acceptedNameUsage"=>params["acceptedNameUsage"],
                 "metadata" => { 
