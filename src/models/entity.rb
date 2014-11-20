@@ -1,5 +1,6 @@
-# To do
-# conversion charset. Ex.: São Domingos and Joana D'Arc.
+require 'json'
+require 'json-schema'
+
 
 class Entity
  #attr_reader :datetime, :duration, :class, :price, :level
@@ -15,9 +16,46 @@ class Entity
         end
     end        
 end
+my_hash = JSON.parse('{"hello": "goodbye"}')
+#puts my_hash["hello"] => "goodbye"
+puts my_hash["hello"]
 
-#data = {:name => "Bruno", :last_name=>"Giminiani", :data_birth => '20-12-1978', :address => {:street => "Sao Domingos", :number => 85}}
-#pessoa = Entity.new
-#pessoa.init(data,0)
-#puts pessoa.inspect
-#puts pessoa.class
+schema = '{
+    "person": {
+        "type": "object",
+        "required":["last_name"],
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "last_name": {
+                "type": "string",
+                "required": true
+            },
+            "data_birth": {
+                "type": "string"
+            },
+            "address": {
+                "type": "object",
+                "required": false,
+                "properties": {
+                    "street": {
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "number"
+                    }
+                 }
+            }
+        }
+    }
+}'
+
+schema = JSON.parse(schema)
+person = {:name => "Bruno", :test=>nil, :data_birth => '20-12-1978', :address => {:street => "Sao Domingos", :number => 85}}
+puts "schema = #{schema}"
+puts "person = #{person}"
+puts "validate = #{JSON::Validator.validate(schema,person)}"
+# To do
+# conversion charset. Ex.: São Domingos and Joana D'Arc.
+# check field date on metadata schema.   
