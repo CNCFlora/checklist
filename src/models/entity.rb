@@ -24,6 +24,7 @@ schema = '{
     "person": {
         "type": "object",
         "required":["last_name"],
+        "additionalProperties": false,
         "properties": {
             "name": {
                 "type": "string"
@@ -51,11 +52,20 @@ schema = '{
     }
 }'
 
-schema = JSON.parse(schema)
-person = {:name => "Bruno", :test=>nil, :data_birth => '20-12-1978', :address => {:street => "Sao Domingos", :number => 85}}
-puts "schema = #{schema}"
-puts "person = #{person}"
-puts "validate = #{JSON::Validator.validate(schema,person)}"
+person = '{ "name":"Bruno", "test":"", "data_birth":"20-12-1978", "address":{"street":"Sao Domingos", "number":85}}'
+
+puts "core schema_json =  #{schema}"
+puts "core person_json = #{person}"
+schema = JSON.load(schema)
+person = JSON.load(person)
+puts "JSON.load(schema) = #{schema}"
+puts "JSON.load(schema) = #{person}"
+#person = {"name" => "Bruno", "test"=>nil, "data_birth" => "20-12-1978", "address" => {"street" => "Sao Domingos", "number" => 85}}
+#puts "schema = #{schema}"
+#puts "person = #{person}"
+puts "validate = #{JSON::Validator.validate!(schema,person)}"
+=begin
+=end
 # To do
 # conversion charset. Ex.: São Domingos and Joana D'Arc.
 # check field date on metadata schema.   
