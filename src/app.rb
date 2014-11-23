@@ -51,6 +51,11 @@ end
 get "/" do
     # Get all families of checklist.
     species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
+    puts "----"
+    puts "species = #{species}"
+    puts "----"
+
+    puts "specie[0] = #{species[0]}"
 
     families = []
 

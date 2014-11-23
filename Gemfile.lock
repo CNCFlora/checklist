@@ -1,8 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
+<<<<<<< HEAD
     backports (3.6.4)
     cncflora_commons (0.0.23)
+=======
+    backports (3.6.3)
+    cncflora_commons (0.0.24)
+>>>>>>> cc2de4b3c62fa675623da2782dd7decb6591a737
     diff-lcs (1.2.5)
     json-schema (2.4.1)
     kgio (2.9.2)
@@ -59,8 +64,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+<<<<<<< HEAD
   cncflora_commons (= 0.0.23)
   json-schema
+=======
+  cncflora_commons (= 0.0.24)
+>>>>>>> cc2de4b3c62fa675623da2782dd7decb6591a737
   rack-test
   rspec
   rspec-html-matchers
