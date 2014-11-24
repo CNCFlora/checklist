@@ -43,20 +43,22 @@ schema = '{
             },
             "address": {
                 "type": "object",
-                "required": false,
+                "required": true,
                 "properties": {
                     "street": {
                         "type": "string"
+                        "required":"true"
                     },
                     "number": {
                         "type": "number"
+                        "required":"false"
                     }
                  }
             }
         }
 }'
 
-person = '{ "name":"Bruno", "test":"", "data_birth":"20-12-1978", "address":{"street":"Sao Domingos", "number":85}}'
+person = '{ "name":"Bruno", "last_name":"Giminiani", "data_birth":"20-12-1978", "address":{"street":"Sao Domingos", "number":85}}'
 
 puts "core schema_json =  #{schema}"
 puts "core person_json = #{person}"
