@@ -4,76 +4,80 @@ require 'json-schema'
 
 
 class Entity
- #attr_reader :datetime, :duration, :class, :price, :level
 
-=begin
-    def initialize(schema,data)
+    def initialize(schema,hash)
+        validate_json_schema(schema,hash)
+        create_object(hash)
     end
-=end
 
-    def init(data, recursion)
-        data.each do |name, value|
-            if value.is_a? Hash
-                init(value, recursion+1)
-            else
-                instance_variable_set("@#{name}", value)
-                #bit missing: attr_accessor name.to_sym 
-            end
+
+    def validate_json_schema(schema,hash)
+        begin
+            JSON::Validator.validate!(schema, hash)
+        rescue JSON::Schema::ValidationError
+          puts $!.message
         end
-    end        
+    end
+
+    def create_object(hash)
+        hash.each do |k,v|
+            self.instance_variable_set("@#{k}", v)  ## create and initialize an instance variable for this key/value pair
+            self.class.send(:define_method, k, proc{self.instance_variable_get("@#{k}")})  ## create the getter that returns the instance variable
+            self.class.send(:define_method, "#{k}=", proc{|v| self.instance_variable_set("@#{k}", v)})  ## create the setter that sets the instance variable
+        end
+    end
+    
 end
 my_hash = JSON.parse('{"hello": "goodbye"}')
 #puts my_hash["hello"] => "goodbye"
 puts my_hash["hello"]
 
+=begin
 schema = '{
         "type": "object",
-        "required":["last_name"],
         "additionalProperties": false,
+        "required":["last_name"],
         "properties": {
             "name": {
                 "type": "string"
             },
             "last_name": {
-                "type": "string",
-                "required": true
+                "type": "string"
             },
             "data_birth": {
                 "type": "string"
             },
             "address": {
                 "type": "object",
-                "required": true,
+                "required":["street"],
                 "properties": {
                     "street": {
                         "type": "string"
-                        "required":"true"
                     },
                     "number": {
                         "type": "number"
-                        "required":"false"
                     }
                  }
             }
         }
 }'
+=end
 
-person = '{ "name":"Bruno", "last_name":"Giminiani", "data_birth":"20-12-1978", "address":{"street":"Sao Domingos", "number":85}}'
+person = '{ "name":"Bruno", "last_name":"Giminiani", "data_birth":"20-12-1978", "address":{ "street":"Sao Domingos", "number":85 } }'
 
-puts "core schema_json =  #{schema}"
+#puts "core schema_json =  #{schema}"
 puts "core person_json = #{person}"
-schema = JSON.load(schema)
-person = JSON.load(person)
-puts "JSON.load(schema) = #{schema}"
-puts "JSON.load(schema) = #{person}"
+schema = JSON.load(IO.read("../../resources/schema/person.json"))
+hash = JSON.load(person)
+person = Entity.new schema, hash
+puts "person.name = "
+puts "person._instance_variables = #{person.instance_variables}"
+
 #person = {"name" => "Bruno", "test"=>nil, "data_birth" => "20-12-1978", "address" => {"street" => "Sao Domingos", "number" => 85}}
 #puts "schema = #{schema}"
 #puts "person = #{person}"
-begin
-    JSON::Validator.validate!(schema, person)
-rescue JSON::Schema::ValidationError
-  puts $!.message
-end
+
+
 #errors = JSON::Validator.validate!(schema,person)
 
 

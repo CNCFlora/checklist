@@ -1,0 +1,28 @@
+{
+        "type": "object",
+        "additionalProperties": false,
+        "required":["last_name"],
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "last_name": {
+                "type": "string"
+            },
+            "data_birth": {
+                "type": "string"
+            },
+            "address": {
+                "type": "object",
+                "required":["street"],
+                "properties": {
+                    "street": {
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "number"
+                    }
+                 }
+            }
+        }
+}
