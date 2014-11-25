@@ -1,6 +1,6 @@
 require 'rubygems'
-require 'json'
-require 'json-schema'
+#require 'json'
+#require 'json-schema'
 
 
 class Entity
@@ -11,14 +11,7 @@ class Entity
     end
 
 
-    def validate_json_schema(schema,hash)
-        begin
-            JSON::Validator.validate!(schema, hash)
-        rescue JSON::Schema::ValidationError
-          puts $!.message
-        end
-    end
-
+    
     def create_object(hash)
         hash.each do |k,v|
             self.instance_variable_set("@#{k}", v)  ## create and initialize an instance variable for this key/value pair
