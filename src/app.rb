@@ -8,10 +8,18 @@ require 'sinatra/mustache'
 require 'sinatra/reloader' if development?
 
 require 'securerandom'
+require_relative 'dao/taxon'
+require_relative 'utils/conf'
 
-require 'cncflora_commons'
 
-setup '../config.yml'
+
+conf = Conf.new
+#config_file '../config.yml'
+conf.setup '../config.yml'
+
+dao = TaxonDAO.new
+puts "########## dao.scientificName =#{dao.scientificName} ##########"
+puts dao.test "module"
 
 
 def require_logged_in
@@ -49,6 +57,10 @@ post '/logout' do
 end
 
 get "/" do
+    #---------------------------------------
+    taxons = dao.search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
+    puts "taxons = #{taxons}"
+    #---------------------------------------
     # Get all families of checklist.
     species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
     puts "----"
