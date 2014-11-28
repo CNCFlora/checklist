@@ -1,74 +1,33 @@
+
 {{> header}}
-{{#logged}}
-    <div class="col-md-8">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>FAMÍLIAS</th>   
-                </tr>
-            </thead>
-            <tbody>
-            {{#families}}
-                <tr>
-                    <td><a href="{{base}}/edit/family/{{name}}">{{name}} / {{species_amount}}</a></td>
-                </tr>
-            {{/families}}
-            </tbody>
-        </table>
-    </div>
 
-    <div class="col-md-4">
-        <form action="{{base}}/insert/specie" method='POST'>
-        <h3>Adicionar espécie da Flora do Brasil</h3>
-        <fieldset>
-            <div class='form-group'>
-                <input id="specie" name="specie" type="text" placeholder="" rel='complete' complete='roles'  class='form-control'/>
-            </div>
-            <button class="btn btn-success">Adicionar</button>
-        </fieldset>
-        </form>
-        <form action="{{base}}/insert/new" method='POST' class='form'>
-        <h3>Adicionar espécie sem Flora do Brasil</h3>
-        <fieldset>
-            <legend>Caso a espécie a inserir não exista na Flora do Brasil ou esteja errada na mesma.</legend>
-            <div class='form-group'>
-                <label for="family">Familia</label>
-                <input name="family" type="text" placeholder="Acanthaceae" class='form-control'/>
-            </div>
-            <div class='form-group'>
-                <label for="scientificNameWithoutAuthorship">Nome cientifico</label>
-                <input name="scientificNameWithoutAuthorship" type="text" placeholder="Aphelandra longiflora" class='form-control'/>
-            </div>
-            <div class='form-group'>
-                <label for="scientificNameAuthorship">Autor(a)</label>
-                <input name="scientificNameAuthorship" type="text" placeholder="S.Profice" class='form-control'/>
-            </div>
-            <div class='form-group'>
-                <label for="taxonRank">Rank</label>
-                <select name="taxonRank">
-                    <option value="species">Espécie</option>
-                    <option value="subspecie">Subespecie</option>
-                    <option value="variety">Variedade</option>
-                </select>
-            </div>
-            <div class='form-group'>
-                <label for="taxonomicStatus">Status</label>
-                <select id="taxonomicStatus" name="taxonomicStatus">
-                    <option value="accepted">Aceito</option>
-                    <option value="synonym">Sinônimo</option>
-                </select>
-            </div>
-            <div class='form-group'>
-                <label for="acceptedNameUsage">Nome aceito com autor (se sinônimo)</label>
-                <input id="acceptedNameUsage" name="acceptedNameUsage" type="text" placeholder="Aphelandra longiflora S.Profice" class='form-control'/>
-            </div>
-            <button class="btn btn-success">Adicionar</button>
-        </fieldset>
-        </form>
-    </div>
-    </div>
+{{^logged}}
+    <p class="col-md-12">{{strings.login-to-begin}}.</p>
 {{/logged}}
+
+{{#logged}}
+<div class="col-md-8">
+    <h2>{{strings.welcome}}, {{user.name}}.</h2>
+    <h3>
+      {{strings.checklists}}
+    </h3>
+    <ul>
+    {{#dbs}}
+      <li><a href="{{base}}/{{db}}">{{name}}</a></li>
+    {{/dbs}}
+    </ul>
+</div>
+
+    <form action="{{base}}/" method="POST" class='form col-md-4'>
+      <fieldset>
+        <legend>Novo checklist</legend>
+        <p>
+        <input name="db" type="text" placeholder="Nome XYZ 2015"/>
+        </p>
+        <p><small>(apenas LETRAS, NÚMEROS e ESPAÇO)</small></p>
+        <button>Criar</button>
+      </fieldset>
+    </form>
+{{/logged}}
+
 {{> footer}}
-
-
-

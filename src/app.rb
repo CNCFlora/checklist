@@ -25,11 +25,15 @@ end
 def view(page,data)
     @config = settings.config
     @session_hash = {:logged => session[:logged] || false, :user => session[:user] || '{}'}
-    if session[:logged] 
-        session[:user]['roles'].each do | role |
-            @session_hash["role-#{role['role'].downcase}"] = true
-        end
+
+    if data[:db]
+      data[:db_name] = data[:db].gsub('_',' ').upcase
     end
+    #if session[:logged] 
+        #session[:user]['roles'].each do | role |
+            #@session_hash["role-#{role['role'].downcase}"] = true
+        #end
+    #end
     mustache page, {}, @config.merge(@session_hash).merge(data)
 end
 
@@ -37,8 +41,8 @@ end
 post '/login' do
     session[:logged] = true
     preuser = JSON.parse(params[:user])
-    user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
-    session[:user] = user
+    #user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
+    session[:user] = preuser
     204
 end
 
@@ -49,8 +53,26 @@ post '/logout' do
 end
 
 get "/" do
+  dbs=[]
+  all=http_get("#{ settings.couchdb }/_all_dbs")
+  all.each {|db|
+    if db[0] != "_" && !db.match('_history') then
+      dbs << {:name=>db.gsub("_"," ").upcase,:db =>db}
+    end
+  }
+  view :index, {:dbs=>dbs}
+end
+
+post "/" do
+  if params[:db].gsub(" ","_").match('^[a-zA-Z0-9_]+$') then
+    http_put("#{settings.couchdb}/#{params[:db].gsub(" ","_").downcase}",{})
+  end
+  redirect("#{settings.base}/");
+end
+
+get "/:db" do
     # Get all families of checklist.
-    species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
+    species = search(params[:db],"taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
 
     families = []
 
@@ -70,19 +92,19 @@ get "/" do
     end
 
     families = docs
-    view :index, {:families=>families}
+    view :families, {:families=>families,:db=>params[:db]}
 end
 
 
-get "/edit/family/:family" do
+get "/:db/edit/family/:family" do
     require_logged_in
 
     # Get taxon by family
     family = params[:family].upcase
-    species = search("taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
+    species = search(params[:db],"taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
     species_by_family = []
     species.each do |specie|
-        synonyms = search("taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"")
+        synonyms = search(params[:db],"taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"")
         # Check synonyms in specie
         specie["synonyms"] = [] if synonyms.size > 0
         synonyms.each do |synonym|
@@ -92,11 +114,11 @@ get "/edit/family/:family" do
     end
     species_by_family = species_by_family.sort_by { |element| element["scientificNameWithoutAuthorship"]}
     docs = [ { "family"=>family,"species"=>species_by_family } ]
-    view :edit, {:docs=>docs}
+    view :edit, {:docs=>docs,:db=>params[:db]}
 end
 
 
-post "/insert/specie" do
+post "/:db/insert/specie" do
     require_logged_in
 
     specie = URI.encode( params["specie"] )
@@ -104,7 +126,7 @@ post "/insert/specie" do
     doc = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
 
     # Verify if the specie already exists.
-    result = http_get( "#{settings.couchdb}/#{doc["taxonID"]}?include_docs=false")
+    result = http_get( "#{settings.couchdb}/#{params[:db]}/#{doc["taxonID"]}?include_docs=false")
 
     if result["error"]
         metadata = { 
@@ -120,19 +142,19 @@ post "/insert/specie" do
         if doc.has_key?("synonyms")
             doc["synonyms"].each{ |key|
                 key["metadata"] = metadata 
-                result = http_post( settings.couchdb, key ) 
+                result = http_post( "#{ settings.couchdb }/#{params[:db]}", key ) 
             }
         end
 
         doc["metadata"] = metadata
         doc["_id"] = doc["taxonID"]
-        doc = http_post( settings.couchdb, doc )
+        doc = http_post(  "#{ settings.couchdb }/#{params[:db]}", doc )
     end
 
     redirect request.referrer
 end
 
-post "/insert/new" do
+post "/:db/insert/new" do
     require_logged_in
 
     if !params.has_key?("family") || !params.has_key?("scientificNameWithoutAuthorship") || !params.has_key?("scientificNameAuthorship") || !params.has_key?("taxonomicStatus")
@@ -165,31 +187,31 @@ post "/insert/new" do
                     "contact"=>"#{session[:user]["email"]}" 
                 }
             }
-            r = http_post(settings.couchdb,doc)
+            r = http_post("#{ settings.couchdb }/#{params[:db]}",doc)
             redirect request.referrer
         end
     end
 end
 
-get "/delete/specie/:specie" do
+get "/:db/delete/specie/:specie" do
     require_logged_in
 
     specie = params[:specie]
-    specie = search("taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
+    specie = search(params[:db],"taxon","scientificNameWithoutAuthorship:\"#{specie}\"")[0]
 
     q = "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\""
-    synonyms = search("taxon", q)
+    synonyms = search(params[:db],"taxon", q)
 
     synonyms.each { |synonym|
-        doc = http_delete("#{settings.couchdb}/#{synonym["id"]}?rev=#{synonym["rev"]}")
+        doc = http_delete("#{settings.couchdb}/#{params[:db]}/#{synonym["id"]}?rev=#{synonym["rev"]}")
     }
 
-    doc = http_delete("#{settings.couchdb}/#{specie["id"]}?rev=#{specie["rev"]}")
+    doc = http_delete("#{settings.couchdb}/#{params[:db]}/#{specie["id"]}?rev=#{specie["rev"]}")
     redirect request.referrer
 end
 
-get "/search/accepted" do
+get "/:db/search/accepted" do
     content_type :json
-    search("taxon","scientificName:\"#{params["query"]}*\"").to_json
+    search(params[:db],"taxon","scientificName:\"#{params["query"]}*\" taxonomicStatus:\"accepted\"").to_json
 end
 

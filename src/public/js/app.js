@@ -11,7 +11,7 @@ $(function(){
 
     $("#acceptedNameUsage").autocomplete({
         source: function (request, response) {
-            $.getJSON(base+"/search/accepted?query="+request.term, function (data) {
+            $.getJSON(base+'/'+db+"/search/accepted?query="+request.term, function (data) {
                     console.log(data);
                 processResult(data, response, request.term);
             });

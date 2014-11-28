@@ -1,18 +1,13 @@
 development:
     etcd: "http://192.168.50.16:4001"
-    db: "cncflora"
     lang: "pt"
-    context: "connect"
     base: ""
 test:
     etcd: "http://192.168.50.16:4001"
     lang: "pt"
     db: "cncflora_test"
-    context: "connect"
     base: ""
 production:
     etcd: "http://cncflora.jbrj.gov.br/etcd"
-    db: "cncflora"
     lang: "pt"
-    context: "connect"
     base: "/checklist"
