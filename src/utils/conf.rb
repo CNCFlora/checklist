@@ -1,4 +1,4 @@
-class Conf
+class Config
     include CNCFlora_Config
 =begin
     attr_accessor :file

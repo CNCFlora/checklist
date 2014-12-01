@@ -8,18 +8,16 @@ require 'sinatra/mustache'
 require 'sinatra/reloader' if development?
 
 require 'securerandom'
+#require_relative 'dao/taxon'
+require_relative 'utils/cncflora_config'
+
+setup '../config.yml'
+
 require_relative 'dao/taxon'
-require_relative 'utils/conf'
 
-
-
-conf = Conf.new
-#config_file '../config.yml'
-conf.setup '../config.yml'
-
-dao = TaxonDAO.new
-puts "########## dao.scientificName =#{dao.scientificName} ##########"
-puts dao.test "module"
+dao = TaxonDAO.new settings.datahub, settings.db
+#puts "########## dao.scientificName =#{dao.scientificName} ##########"
+#puts dao.test "module"
 
 
 def require_logged_in
@@ -45,7 +43,7 @@ end
 post '/login' do
     session[:logged] = true
     preuser = JSON.parse(params[:user])
-    user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
+    user = dao.http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
     session[:user] = user
     204
 end
@@ -58,11 +56,15 @@ end
 
 get "/" do
     #---------------------------------------
-    taxons = dao.search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
-    puts "taxons = #{taxons}"
+    puts "taxons.datahub = #{dao.datahub}"
+    puts "taxons.type = #{dao.type}"
+    taxons = dao.get_taxons
+    puts "taxons1242432 = #{taxons}"
+    puts "-------------------------------------------------"
     #---------------------------------------
     # Get all families of checklist.
-    species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
+    #species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")A
+    species = dao.get_species
     puts "----"
     puts "species = #{species}"
     puts "----"

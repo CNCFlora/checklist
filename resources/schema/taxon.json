@@ -1,0 +1,42 @@
+{
+        "type": "object",
+        "additionalProperties": false,
+        "required":["last_name"],
+        "properties": {
+            "_id": {
+                "type": "string"
+            },
+            "_rev": {
+                "type": "string"
+            },
+            "family": {
+                "type": "string"
+            },
+            "scientificname": {
+                "type":"string"
+            },
+            "scientificNameAuthorship": {
+                "type": "string"
+            },
+            "taxonRank": {
+                "type": "string"
+            },
+            "taxonomicStatus": {
+                "type": "string"
+            },
+            "acceptedNameUsage": {
+                "type": "status"
+            },
+            "metadata": {
+                "type": "object",
+                "properties": {
+                    "identifier": {
+                        "type": "string"
+                    },                    
+                    "type": {
+                        "type": "string"
+                    }
+                 }
+            }
+        }
+}

@@ -4,7 +4,8 @@ Encoding.default_internal = Encoding::UTF_8
 source 'https://rubygems.org'
 
 gem 'json-schema'
-gem 'sinatra'
+#gem 'sinatra'
+gem 'sinatra', require: 'sinatra/base'
 gem 'sinatra-contrib'
 gem 'sinatra-mustache'
 gem 'sinatra-config-file'
