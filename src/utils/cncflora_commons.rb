@@ -8,7 +8,8 @@ module CNCFlora_Commons
     def search(elasticsearch,database,index,query)
         query="scientificName:'Aphelandra longiflora'" unless query != nil && query.length > 0
         result = []
-        #puts "uri = #{elasticsearch}/#{database}/#{index}/_search?size=999&q=#{URI.encode(query)}"
+        puts "query = #{query}"
+        puts "uri = #{elasticsearch}/#{database}/#{index}/_search?size=999&q=#{URI.encode(query)}"
         r = http_get("#{elasticsearch}/#{database}/#{index}/_search?size=999&q=#{URI.encode(query)}")
         if r['hits'] && r['hits']['hits'] then
             r['hits']['hits'].each{|hit|

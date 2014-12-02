@@ -5,8 +5,9 @@ require 'rubygems'
 
 class Entity
 
-    def initialize(schema,hash)
-        validate_json_schema(schema,hash)
+    def initialize(hash)
+        #validate_json_schema(schema,hash)
+        #puts "entity hash - #{hash}"
         create_object(hash)
     end
 
@@ -21,9 +22,9 @@ class Entity
     end
     
 end
-my_hash = JSON.parse('{"hello": "goodbye"}')
+#my_hash = JSON.parse('{"hello": "goodbye"}')
 #puts my_hash["hello"] => "goodbye"
-puts my_hash["hello"]
+#puts my_hash["hello"]
 
 =begin
 schema = '{
@@ -56,15 +57,17 @@ schema = '{
 }'
 =end
 
-person = '{ "name":"Bruno", "last_name":"Giminiani", "data_birth":"20-12-1978", "address":{ "street":"Sao Domingos", "number":85 } }'
+#person = '{ "name":"Bruno", "last_name":"Giminiani", "data_birth":"20-12-1978", "address":{ "street":"Sao Domingos", "number":85 } }'
 
 #puts "core schema_json =  #{schema}"
+=begin
 puts "core person_json = #{person}"
 schema = JSON.load(IO.read("../../resources/schema/person.json"))
 hash = JSON.load(person)
 person = Entity.new schema, hash
 puts "person.name = "
 puts "person._instance_variables = #{person.instance_variables}"
+=end
 
 #person = {"name" => "Bruno", "test"=>nil, "data_birth" => "20-12-1978", "address" => {"street" => "Sao Domingos", "number" => 85}}
 #puts "schema = #{schema}"
@@ -73,7 +76,7 @@ puts "person._instance_variables = #{person.instance_variables}"
 
 #errors = JSON::Validator.validate!(schema,person)
 
-
+=begin
 schema = {
   "type" => "object",
     "required" => ["a"],
@@ -85,15 +88,15 @@ schema = {
 data = {
   "b" => 5
 }
-
+=end
 #puts JSON::Validator.validate(schema, data)
-
+=begin
 hash = [1,"a"].inject({}) do |hash, item|
 #[1,"a",Object.new,:hi].inject({}) do |hash, item|
   hash[item.to_s] = item
   hash
+  puts "hash = #{hash}"
 end
-puts "hash = #{hash}"
 =begin
 =end
 # To do

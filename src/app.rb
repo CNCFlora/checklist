@@ -10,10 +10,11 @@ require 'sinatra/reloader' if development?
 require 'securerandom'
 #require_relative 'dao/taxon'
 require_relative 'utils/cncflora_config'
+#require_relative 'sinatra/cncflora_config'
+require_relative 'dao/taxon'
 
 setup '../config.yml'
 
-require_relative 'dao/taxon'
 
 dao = TaxonDAO.new settings.datahub, settings.db
 #puts "########## dao.scientificName =#{dao.scientificName} ##########"
@@ -43,7 +44,7 @@ end
 post '/login' do
     session[:logged] = true
     preuser = JSON.parse(params[:user])
-    user = dao.http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
+    user = http_get("#{settings.connect}/api/token?token=#{preuser["token"]}")
     session[:user] = user
     204
 end
@@ -56,25 +57,32 @@ end
 
 get "/" do
     #---------------------------------------
-    puts "taxons.datahub = #{dao.datahub}"
-    puts "taxons.type = #{dao.type}"
-    taxons = dao.get_taxons
-    puts "taxons1242432 = #{taxons}"
-    puts "-------------------------------------------------"
+    #puts "taxons.datahub = #{dao.datahub}"
+    #puts "taxons.type = #{dao.type}"
+    #taxons = dao.get_taxons
+    #puts "taxons############# = #{taxons[0].instance_variables_get}"
+    #puts "taxons.class = #{taxons.class}"
+    #puts "taxon.class = #{taxons[0].class}"
     #---------------------------------------
+    #
     # Get all families of checklist.
-    #species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")A
+    #species = search("taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
     species = dao.get_species
-    puts "----"
+    puts "#### SPECIES ####"
     puts "species = #{species}"
-    puts "----"
-
+    puts "species.class = #{species.class}"
+    puts "specie.class = #{species[0].class}"
     puts "specie[0] = #{species[0]}"
+    puts "#### SPECIES ####"
+
 
     families = []
+    species.each{ |specie|
+        puts "family: #{specie.family}"
+    }
 
     species.each do |specie|
-        families << specie["family"]
+        families << specie.family
     end
     families = families.uniq.sort
 
@@ -87,7 +95,7 @@ get "/" do
         end
         docs << doc
     end
-
+    #puts dao.schema
     families = docs
     view :index, {:families=>families}
 end
@@ -120,10 +128,11 @@ post "/insert/specie" do
 
     specie = URI.encode( params["specie"] )
 
-    doc = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
+    doc = dao.http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
+    puts "doc = #{doc}"
 
     # Verify if the specie already exists.
-    result = http_get( "#{settings.couchdb}/#{doc["taxonID"]}?include_docs=false")
+    result = dao.http_get( "#{settings.couchdb}/#{doc["taxonID"]}?include_docs=false")
 
     if result["error"]
         metadata = { 

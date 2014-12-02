@@ -1,7 +1,7 @@
 {
         "type": "object",
-        "additionalProperties": false,
-        "required":["last_name"],
+        "_comment": "additionalProperties:false",
+        "_comment": "required:['last_name']",
         "properties": {
             "_id": {
                 "type": "string"
