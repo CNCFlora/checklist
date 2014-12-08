@@ -15,7 +15,7 @@ setup '../config.yml'
 
 
 def require_logged_in
-    redirect('/') unless is_authenticated?
+    redirect("#{settings.base}/?back_to=#{request.path_info}") unless is_authenticated?
 end
  
 def is_authenticated?
@@ -53,14 +53,20 @@ post '/logout' do
 end
 
 get "/" do
-  dbs=[]
-  all=http_get("#{ settings.couchdb }/_all_dbs")
-  all.each {|db|
-    if db[0] != "_" && !db.match('_history') then
-      dbs << {:name=>db.gsub("_"," ").upcase,:db =>db}
-    end
-  }
-  view :index, {:dbs=>dbs}
+  if session[:logged] && params[:back_to] then
+    redirect params[:back_to]
+  elsif session[:logged] then
+    dbs=[]
+    all=http_get("#{ settings.couchdb }/_all_dbs")
+    all.each {|db|
+      if db[0] != "_" && !db.match('_history') then
+        dbs << {:name=>db.gsub("_"," ").upcase,:db =>db}
+      end
+    }
+    view :index,{:dbs=>dbs}
+  else
+    view :index,{:dbs=>[]}
+  end
 end
 
 post "/" do

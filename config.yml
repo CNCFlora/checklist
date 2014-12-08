@@ -5,7 +5,6 @@ development:
 test:
     etcd: "http://192.168.50.16:4001"
     lang: "pt"
-    db: "cncflora_test"
     base: ""
 production:
     etcd: "http://cncflora.jbrj.gov.br/etcd"
