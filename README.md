@@ -12,6 +12,11 @@ You will need to have access to etcd, connect and datahub.
 
 ## Development
 
+Start with git:
+
+  git clone git@github.com:CNCFlora/assessment
+  cd assessment
+
 Use [vagrant](http://vagrantup.com) and [virtualbox](http://virtualbox.org):
 
   vagrant up
