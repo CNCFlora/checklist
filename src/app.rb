@@ -13,7 +13,6 @@ require 'cncflora_commons'
 
 setup '../config.yml'
 
-
 def require_logged_in
     redirect("#{settings.base}/?back_to=#{request.path_info}") unless is_authenticated?
 end
@@ -78,7 +77,7 @@ end
 
 get "/:db" do
     # Get all families of checklist.
-    species = search(params[:db],"taxon","taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
+    species = search(params[:db],"taxon","taxonomicStatus:\"accepted\"")
 
     families = []
 
@@ -90,10 +89,7 @@ get "/:db" do
     docs = []
     families.each do |family|
         doc = { "name"=>family.upcase, "species_amount"=>0 }
-        items = species.select{ |specie| specie["family"] == family }
-        items.each do |specie|
-            doc["species_amount"] += 1
-        end
+        doc["species_amount"] = species.select{ |specie| specie["family"].upcase == family.upcase }.count
         docs << doc
     end
 
@@ -107,15 +103,10 @@ get "/:db/edit/family/:family" do
 
     # Get taxon by family
     family = params[:family].upcase
-    species = search(params[:db],"taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\" AND NOT taxonRank:\"family\"")
+    species = search(params[:db],"taxon","family:\"#{family}\" AND taxonomicStatus:\"accepted\"")
     species_by_family = []
     species.each do |specie|
-        synonyms = search(params[:db],"taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"")
-        # Check synonyms in specie
-        specie["synonyms"] = [] if synonyms.size > 0
-        synonyms.each do |synonym|
-            specie["synonyms"] << { "scientificNameWithoutAuthorship" => synonym["scientificNameWithoutAuthorship"] } 
-        end
+        specie["synonyms"] = search(params[:db],"taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"").sort_by { |element| element["scientificNameWithoutAuthorship"]}
         species_by_family << specie
     end
     species_by_family = species_by_family.sort_by { |element| element["scientificNameWithoutAuthorship"]}
