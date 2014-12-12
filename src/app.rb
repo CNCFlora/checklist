@@ -11,7 +11,7 @@ require 'securerandom'
 
 require 'cncflora_commons'
 
-setup '../config.yml'
+setup 'config.yml'
 
 def require_logged_in
     redirect("#{settings.base}/?back_to=#{request.path_info}") unless is_authenticated?
@@ -28,11 +28,7 @@ def view(page,data)
     if data[:db]
       data[:db_name] = data[:db].gsub('_',' ').upcase
     end
-    #if session[:logged] 
-        #session[:user]['roles'].each do | role |
-            #@session_hash["role-#{role['role'].downcase}"] = true
-        #end
-    #end
+
     mustache page, {}, @config.merge(@session_hash).merge(data)
 end
 

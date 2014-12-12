@@ -21,18 +21,10 @@ if [[ ! -e /root/.app_done ]]; then
     touch /root/.app_done
 fi
 
-# docker register to etcd
-if [[ ! -e /root/.ops_done ]]; then
-    gem install small-ops
-    touch /root/.ops_done
-fi
-docker2etcd -h 192.168.50.16 -e http://192.168.50.16:4001
-
 # setup couchdb
 if [[ ! -e /root/.db_done ]]; then
-    HUB=$(docker ps | grep datahub | awk '{ print $10 }' | grep -e '[0-9]\{5\}' -o)
-    curl -X PUT http://localhost:$HUB/cncflora
-    curl -X PUT http://localhost:$HUB/cncflora_test
+    curl -X PUT http://localhost:5984/cncflora
+    curl -X PUT http://localhost:5984/cncflora_test
     touch /root/.db_done
 fi
 

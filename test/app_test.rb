@@ -16,7 +16,7 @@ def app
     Sinatra::Application
 end
 
-setup '../config.yml'
+setup 'config.yml'
 
 http_get("#{ settings.couchdb }/cncflora_test/_all_docs")["rows"].each {|r|
   http_delete("#{settings.couchdb}/cncflora_test/#{r["id"]}?rev=#{r["value"]["rev"]}");
