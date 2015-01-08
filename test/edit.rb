@@ -1,59 +1,15 @@
-Encoding.default_external = Encoding::UTF_8
-Encoding.default_internal = Encoding::UTF_8
-ENV['RACK_ENV'] = 'test'
 
-require_relative '../src/app'
+require_relative 'base'
 
-require 'rspec'
-require 'rack/test'
-require 'rspec-html-matchers'
-require 'cncflora_commons'
-require 'uri'
-
-include Rack::Test::Methods
-
-def app
-    Sinatra::Application
-end
-
-setup 'config.yml'
-
-http_get("#{ settings.couchdb }/cncflora_test/_all_docs")["rows"].each {|r|
-  http_delete("#{settings.couchdb}/cncflora_test/#{r["id"]}?rev=#{r["value"]["rev"]}");
-}
-http_delete("#{settings.couchdb}/vacro_123")
-
-describe "Web app" do
-
-    before(:all) do
-
-        @specie_without_synonym = "Aphelandra acrensis"
-        @specie_with_synonym = { "specie" => "Aphelandra blanchetiana", "synonyms" => [ "Aphelandra clava","Strobilorhachis blanchetiana" ] }     
-    end
+describe "Edition of checklist" do
 
     before(:each) do
         post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}' }
     end
 
-    it "List checklists" do
-        get "/"
-        expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA TEST")
-        expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA")
-    end
-
-    it "Create checklist" do
-      post "/", {"db"=>"Vaçroa 123#"}
-      post "/", {"db"=>"Vaçroa 123"}
-      post "/", {"db"=>"Vaçroa_123#"}
-      post "/", {"db"=>"Vaçroa_12"}
-      follow_redirect!
-      expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA TEST")
-      expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA")
-      post "/", {"db"=>"Vacro 123"}
-      follow_redirect!
-      expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA TEST")
-      expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA")
-      expect( last_response.body ).to have_tag( "a", :text => "VACRO 123")
+    before(:all) do
+        @specie_without_synonym = "Aphelandra acrensis"
+        @specie_with_synonym = { "specie" => "Aphelandra blanchetiana", "synonyms" => [ "Aphelandra clava","Strobilorhachis blanchetiana" ] }     
     end
 
     it "List families of checklist" do
@@ -136,24 +92,4 @@ describe "Web app" do
         end
     end
 
-    it "Insert specie manually" do
-        post "/cncflora_test/insert/new", {"scientificNameWithoutAuthorship"=>"Foo fuz","family"=>"Foaceae","taxonomicStatus"=>"accepted"}
-        expect( last_response.status ).to eq( 400 )
-        post "/cncflora_test/insert/new", {"scientificNameWithoutAuthorship"=>"Foo fuz","scientificNameAuthorship"=>"bar.","family"=>"Foaceae","taxonomicStatus"=>"accepted"}
-        expect( last_response.status ).to eq( 302 )
-        post "/cncflora_test/insert/new", {"scientificNameWithoutAuthorship"=>"Foo foo","scientificNameAuthorship"=>"bar.","family"=>"Foaceae","taxonomicStatus"=>"synonym"}
-        expect( last_response.status ).to eq( 400 )
-        post "/cncflora_test/insert/new", {"scientificNameWithoutAuthorship"=>"Foo foo","scientificNameAuthorship"=>"bar.","family"=>"Foaceae","taxonomicStatus"=>"synonym","acceptedNameUsage"=>"Foo fuz bar."}
-        expect( last_response.status ).to eq( 302 )
-        sleep 2
-        get "/cncflora_test/edit/family/Foaceae"
-        expect( last_response.body ).to have_tag( "td span", :text => "Foo fuz" )
-        expect( last_response.body ).to have_tag( "td span", :text => "Foo foo" )
-        get "/cncflora_test/delete/specie/Foo+fuz"
-        sleep 2
-        get "/cncflora_test/edit/family/Foaceae"
-        expect( last_response.body ).not_to have_tag( "td span", :text => "Foo fuz" )
-        expect( last_response.body ).not_to have_tag( "td span", :text => "Foo foo" )
     end
-
-end
