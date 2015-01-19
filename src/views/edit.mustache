@@ -13,7 +13,14 @@
             {{#docs}}
                 {{#species}}
                 <tr>
-                    <td class="species"><span>{{scientificNameWithoutAuthorship}}<span></td>
+                    <td class="species">
+                      <a href="{{profiles_url}}/{{db}}/specie/{{scientificNameWithoutAuthorship}}">
+                        <span>
+                          {{scientificNameWithoutAuthorship}}
+                        <span>
+                      </a>
+                      {{scientificNameAuthorship}}
+                    </td>
                     <td><a href="{{base}}/{{db}}/delete/specie/{{scientificNameWithoutAuthorship}}" class="glyphicon glyphicon-remove"></a></td>
               </tr>
                 {{#synonyms}}
