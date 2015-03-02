@@ -15,9 +15,7 @@
                 <tr>
                     <td class="species">
                       <a href="{{profiles_url}}/{{db}}/specie/{{scientificNameWithoutAuthorship}}">
-                        <span>
-                          {{scientificNameWithoutAuthorship}}
-                        <span>
+                        <span>{{scientificNameWithoutAuthorship}}</span>
                       </a>
                       {{scientificNameAuthorship}}
                     </td>
@@ -35,19 +33,10 @@
     </div>
 
     <div class="col-md-4">
-        <form action="{{base}}/{{db}}/insert/specie" method='POST' class='form'>
-        <h3>Adicionar espécie da Flora do Brasil</h3>
-        <fieldset>
-            <div class='form-group'>
-                <input id="specie" name="specie" type="text" placeholder="" rel='complete' class='form-control'/>
-            </div>
-            <button class="btn btn-success">Adicionar</button>
-        </fieldset>
-        </form>
         <form action="{{base}}/{{db}}/insert/new" method='POST' class='form'>
-        <h3>Adicionar espécie sem Flora do Brasil</h3>
+        <h3>Adicionar espécie</h3>
         <fieldset>
-            <legend>Caso a espécie a inserir não exista na Flora do Brasil ou esteja errada na mesma.</legend>
+            <p>A integração com a flora do brasil é falha, por tanto é necessário acrescentar manualmente as espécies</p>
             <div class='form-group'>
                 <label for="family">Familia</label>
                 <input name="family" type="text" placeholder="Acanthaceae" class='form-control'/>

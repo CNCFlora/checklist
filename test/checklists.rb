@@ -4,13 +4,13 @@ require_relative 'base'
 describe "Creation of checklists" do
 
     before(:each) do
-        post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}' }
+      post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}' }
     end
 
     it "List checklists" do
-        get "/"
-        expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA TEST")
-        expect( last_response.body ).to have_tag( "a", :text => "CNCFLORA")
+      get "/"
+      expect(last_response.body).to have_tag('a',:text=>'CNCFLORA')
+      expect(last_response.body).to have_tag('a',:text=>'CNCFLORA TEST')
     end
 
     it "Create checklist" do

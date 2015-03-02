@@ -4,7 +4,6 @@ development:
     couchdb: "http://192.168.50.16:5984"
     connect: "http://192.168.50.16:8080"
     connect_url: "http://192.168.50.16:8080"
-    floradata: "http://192.168.50.16:8001"
     elasticsearch: "http://192.168.50.16:9200"
 test:
     lang: "pt"
@@ -12,7 +11,6 @@ test:
     couchdb: "http://192.168.50.16:5984"
     connect: "http://192.168.50.16:8080"
     connect_url: "http://192.168.50.16:8080"
-    floradata: "http://192.168.50.16:8001"
     elasticsearch: "http://192.168.50.16:9200"
 production:
     lang: "pt"
@@ -20,5 +18,4 @@ production:
     couchdb: "http://$HOST/couchdb"
     connect: "http://$HOST/connect"
     connect_url: "http://$HOST/connect"
-    floradata: "http://$HOST/floradata"
     elasticsearch: "http://$HOST/elasticsearch"

@@ -67,6 +67,7 @@ end
 post "/" do
   if params[:db].gsub(" ","_").match('^[a-zA-Z0-9_]+$') then
     http_put("#{settings.couchdb}/#{params[:db].gsub(" ","_").downcase}",{})
+    http_put("#{settings.elasticsearch}/#{params[:db].gsub(" ","_").downcase}",{})
   end
   redirect("#{settings.base}/");
 end
@@ -110,43 +111,6 @@ get "/:db/edit/family/:family" do
     view :edit, {:docs=>docs,:db=>params[:db]}
 end
 
-
-post "/:db/insert/specie" do
-    require_logged_in
-
-    specie = URI.encode( params["specie"] )
-
-    doc = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
-
-    # Verify if the specie already exists.
-    result = http_get( "#{settings.couchdb}/#{params[:db]}/#{doc["taxonID"]}?include_docs=false")
-
-    if result["error"]
-        metadata = { 
-            "id"=>doc["taxonID"],
-            "type"=>"taxon", 
-            "created"=>Time.now.to_i, 
-            "modified"=>Time.now.to_i, 
-            "creator"=>"#{session[:user]["name"]}", 
-            "contributor"=>"#{session[:user]["name"]}", 
-            "contact"=>"#{session[:user]["email"]}" 
-        }
-
-        if doc.has_key?("synonyms")
-            doc["synonyms"].each{ |key|
-                key["metadata"] = metadata 
-                result = http_post( "#{ settings.couchdb }/#{params[:db]}", key ) 
-            }
-        end
-
-        doc["metadata"] = metadata
-        doc["_id"] = doc["taxonID"]
-        doc = http_post(  "#{ settings.couchdb }/#{params[:db]}", doc )
-    end
-
-    redirect request.referrer
-end
-
 post "/:db/insert/new" do
     require_logged_in
 
@@ -162,6 +126,7 @@ post "/:db/insert/new" do
             end
             id = SecureRandom.uuid
             doc = {
+                "_id"=>id,
                 "taxonID"=>id,
                 "scientificName"=>params["scientificName"],
                 "scientificNameWithoutAuthorship"=>params["scientificNameWithoutAuthorship"],
@@ -181,6 +146,8 @@ post "/:db/insert/new" do
                 }
             }
             r = http_post("#{ settings.couchdb }/#{params[:db]}",doc)
+            puts settings.elasticsearch;
+            index(params[:db],doc)
             redirect request.referrer
         end
     end
@@ -196,10 +163,13 @@ get "/:db/delete/specie/:specie" do
     synonyms = search(params[:db],"taxon", q)
 
     synonyms.each { |synonym|
-        doc = http_delete("#{settings.couchdb}/#{params[:db]}/#{synonym["id"]}?rev=#{synonym["rev"]}")
+      doc = http_delete("#{settings.couchdb}/#{params[:db]}/#{URI.encode( synonym["id"] )}?rev=#{synonym["rev"]}")
+      http_delete("#{settings.elasticsearch}/#{params[:db]}/taxon/#{URI.encode( synonym["id"] )}")
     }
 
-    doc = http_delete("#{settings.couchdb}/#{params[:db]}/#{specie["id"]}?rev=#{specie["rev"]}")
+    doc = http_delete("#{settings.couchdb}/#{params[:db]}/#{URI.encode(specie["id"])}?rev=#{specie["rev"]}")
+    http_delete("#{settings.elasticsearch}/#{params[:db]}/taxon/#{URI.encode(specie["id"])}")
+    sleep 1
     redirect request.referrer
 end
 

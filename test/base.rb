@@ -14,9 +14,13 @@ def app
     Sinatra::Application
 end
 
+RSpec.configure do |config|
+  config.include RSpecHtmlMatchers
+end
+
 setup 'config.yml'
 
-http_get("#{ settings.couchdb }/cncflora_test/_all_docs")["rows"].each {|r|
+http_get("#{settings.couchdb}/cncflora_test/_all_docs")["rows"].each {|r|
   http_delete("#{settings.couchdb}/cncflora_test/#{r["id"]}?rev=#{r["value"]["rev"]}");
 }
 http_delete("#{settings.couchdb}/vacro_123")

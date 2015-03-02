@@ -18,13 +18,13 @@ describe "Manual insertion of specie" do
         expect( last_response.status ).to eq( 302 )
         sleep 3
         get "/cncflora_test/edit/family/Foaceae"
-        expect( last_response.body ).to have_tag( "td span", :text => "Foo fuz" )
-        expect( last_response.body ).to have_tag( "td span", :text => "Foo foo" )
+        expect( last_response.body ).to have_tag( "span", :text => "Foo fuz" )
+        expect( last_response.body ).to have_tag( "span", :text => "Foo foo" )
         get "/cncflora_test/delete/specie/Foo+fuz"
         sleep 2
         get "/cncflora_test/edit/family/Foaceae"
-        expect( last_response.body ).not_to have_tag( "td span", :text => "Foo fuz" )
-        expect( last_response.body ).not_to have_tag( "td span", :text => "Foo foo" )
+        expect( last_response.body ).not_to have_tag( "span", :text => "Foo fuz" )
+        expect( last_response.body ).not_to have_tag( "span", :text => "Foo foo" )
     end
 
 end
