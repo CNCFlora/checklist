@@ -23,7 +23,7 @@ end
 
 def view(page,data)
     @config = settings.config
-    @session_hash = {:logged => session[:logged] || false, :user => session[:user] || '{}'}
+    @session_hash = {:logged => session[:logged] || false, :user => session[:user] || {}, :user_json => session[:user].to_json }
 
     if data[:db]
       data[:db_name] = data[:db].gsub('_',' ').upcase

@@ -16,6 +16,8 @@
             var base = "{{base}}";
             var db = "{{db}}";
             var confirm_str  = "{{strings.confirm}}";
+            {{#logged}} var user = {{{user_json}}}; {{/logged}}
+            {{^logged}} var user=null; {{/logged}}
         </script>
         <script src="{{base}}/js/app.js" type="text/javascript"></script>
     </head>
@@ -23,6 +25,8 @@
         <div class="container">
         <header class='col-md-12'>
             <a href="{{base}}/"><h1>{{strings.checklist}}</h1></a>
+            <p> <span class='glyphicon glyphicon-chevron-right'></span> {{strings.user}}: 
+                {{#logged}} {{user.name}} {{/logged}} {{^logged}} {{strings.none}} {{/logged}}.</p>
             {{#db}}
             <p><span class='glyphicon glyphicon-chevron-right'></span><span class='db'>{{strings.checklist}}: {{db_name}}</span>.</p>
             {{/db}}
