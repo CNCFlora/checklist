@@ -18,6 +18,15 @@
     </div>
 
     <div class="col-md-4">
+      <form action="{{base}}/{{db}}/insert/specie" method='POST' class='form'>
+                <h3>Adicionar espécie da Flora do Brasil</h3>
+               <fieldset>
+                      <div class='form-group'>
+                            <input id="specie" name="specie" type="text" placeholder="" rel='complete' class='form-control'/>
+                        </div>
+                      <button class="btn btn-success">Adicionar</button>
+                  </fieldset>
+        </form>
         <form action="{{base}}/{{db}}/insert/new" method='POST' class='form'>
         <h3>Adicionar espécie</h3>
         <fieldset>

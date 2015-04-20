@@ -142,11 +142,11 @@ post "/:db/insert/new" do
                     "modified"=>Time.now.to_i, 
                     "creator"=>"#{session[:user]["name"]}", 
                     "contributor"=>"#{session[:user]["name"]}", 
-                    "contact"=>"#{session[:user]["email"]}" 
+                    "contact"=>"#{session[:user]["email"]}",
+                    "source"=>"User"
                 }
             }
             r = http_post("#{ settings.couchdb }/#{params[:db]}",doc)
-            puts settings.elasticsearch;
             index(params[:db],doc)
             redirect request.referrer
         end
@@ -178,3 +178,43 @@ get "/:db/search/accepted" do
     search(params[:db],"taxon","scientificName:\"#{params["query"]}*\" taxonomicStatus:\"accepted\"").to_json
 end
 
+post "/:db/insert/specie" do
+  require_logged_in
+
+  specie = URI.encode( params["specie"] )
+
+  doc = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie}")["result"]
+
+  # Verify if the specie already exists.
+  result = http_get( "#{settings.couchdb}/#{params[:db]}/#{doc["taxonID"]}?include_docs=false")
+
+  if result["error"]
+
+    metadata = { 
+      "identifier"=>doc["taxonID"],
+      "type"=>"taxon", 
+      "created"=>Time.now.to_i, 
+      "modified"=>Time.now.to_i, 
+      "creator"=>"#{session[:user]["name"]}", 
+      "contributor"=>"#{session[:user]["name"]}", 
+      "contact"=>"#{session[:user]["email"]}" ,
+      "source"=>"Flora do Brasil"
+    }
+
+    if doc.has_key?("synonyms")
+    doc["synonyms"].each{ |syn|
+      syn["_id"] = syn["taxonID"]
+      syn["metadata"] = metadata.clone
+      result = http_post( "#{ settings.couchdb }/#{params[:db]}", syn ) 
+      index(params[:db],syn)
+    }
+    end
+
+    doc["metadata"] = metadata
+    doc["_id"] = doc["taxonID"]
+    r = http_post(  "#{ settings.couchdb }/#{params[:db]}", doc )
+    index(params[:db],doc)
+  end
+
+  redirect request.referrer
+end
