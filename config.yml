@@ -25,3 +25,5 @@ production:
     elasticsearch: "http://$HOST/elasticsearch"
     floradata: "http://$HOST/floradata"
     floradata_url: "http://$HOST/floradata"
+    profiles: "http://$HOST/profiles"
+    profiles_url: "http://$HOST/profiles"
