@@ -198,7 +198,7 @@ post "/:db/insert/specie" do
       "creator"=>"#{session[:user]["name"]}", 
       "contributor"=>"#{session[:user]["name"]}", 
       "contact"=>"#{session[:user]["email"]}" ,
-      "source"=>"Flora do Brasil"
+      "source"=> doc["source"]
     }
 
     if doc.has_key?("synonyms")
