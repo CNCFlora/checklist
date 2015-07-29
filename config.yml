@@ -19,11 +19,11 @@ test:
 production:
     lang: "pt"
     base: "/checklist"
-    couchdb: "http://$HOST/couchdb"
-    connect: "http://$HOST/connect"
-    connect_url: "http://cncflora.jbrj.gov.br/connect"
-    elasticsearch: "http://$HOST/elasticsearch"
-    floradata: "http://$HOST/floradata"
-    floradata_url: "http://cncflora.jbrj.gov.br/floradata"
-    profiles: "http://$HOST/profiles"
-    profiles_url: "http://cncflora.jbrj.gov.br/profiles"
+    couchdb: 'http://couchdb:5984'
+    connect: 'http://connect'
+    connect_url: 'http://$HOST/connect'
+    elasticsearch: 'http://elasticsearch:9200'
+    floradata: "http://floradata"
+    floradata_url: "http://$HOST/floradata"
+    profiles: "http://profiles"
+    profiles_url: "http://$HOST/profiles"
