@@ -5,6 +5,11 @@ describe "Manual insertion of specie" do
 
     before(:each) do
         post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}' }
+        before_each()
+    end
+
+    after(:each) do
+      after_each()
     end
 
     it "Insert specie and synonym manually" do

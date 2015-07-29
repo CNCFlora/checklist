@@ -4,7 +4,12 @@ require_relative 'base'
 describe "Creation of checklists" do
 
     before(:each) do
-      post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}' }
+      post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}'}
+      before_each()
+    end
+
+    after(:each) do
+      after_each()
     end
 
     it "List checklists" do

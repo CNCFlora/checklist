@@ -5,13 +5,18 @@ describe "Edition of checklist" do
 
     before(:each) do
         post "/login", { :user=>'{"name":"Bruno","email":"bruno@cncflora.net"}' }
+        before_each()
     end
 
     before(:all) do
         @specie_with_synonym = { "specie" => "Aphelandra blanchetiana", "synonyms" => [ "Aphelandra clava","Strobilorhachis blanchetiana" ] }     
     end
 
-    it "Inserts specie without synonym" do
+    after(:each) do
+      after_each()
+    end
+
+      it "Inserts specie without synonym" do
         post "/cncflora_test/insert/specie", { "specie" => "Aphelandra acrensis" }
         expect( last_response.status ).to eq(302)
         get "/cncflora_test"
