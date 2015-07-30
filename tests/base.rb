@@ -19,7 +19,8 @@ RSpec.configure do |config|
 end
 
 def before_each()
-    sleep 1;
+    # Wait until ES docker is up
+    sleep 5;
 
     uri = "#{Sinatra::Application.settings.couchdb}/cncflora"
     uri2 = "#{ Sinatra::Application.settings.elasticsearch }/cncflora"
