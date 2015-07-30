@@ -18,9 +18,10 @@ RSpec.configure do |config|
   config.include RSpecHtmlMatchers
 end
 
+# Wait until ES docker is up
+sleep 5;
+
 def before_each()
-    # Wait until ES docker is up
-    sleep 5;
 
     uri = "#{Sinatra::Application.settings.couchdb}/cncflora"
     uri2 = "#{ Sinatra::Application.settings.elasticsearch }/cncflora"
