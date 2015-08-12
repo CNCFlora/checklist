@@ -4,42 +4,44 @@ CNCFlora app to handle the checklists, a simple list of species to work upon for
 
 ## Deployment
 
-Use docker:
-  
-  docker run -d -p 8181:8080 -t cncflora/checklist
+This app is intend to run as part of the [CNCFlora Nuvem](http://github.com/cncflora/nuvem) apps.
 
-You will need to have access to etcd, connect and datahub.
+To run standalone, you will need [docker](http://docker.com) and [docker-compose](http://docs.docker.com/compose):
+
+Clone the project, access it and run the containers:
+
+    $ git clone git@github.com:CNCFlora/checklist.git
+    $ cd checklist
+    $ docker-compose up
 
 ## Development
 
+You will need [docker](http://docker.com) and [docker-compose](http://docs.docker.com/compose).
+
+The whole project is supposed to run inside a docker container, isolated, including the tests, build and etc.
+
 Start with git:
 
-  git clone git@github.com:CNCFlora/checklist
-  cd checklist
+    $ git clone git@github.com:CNCFlora/checklist
+    $ cd checklist
 
-Use [vagrant](http://vagrantup.com) and [virtualbox](http://virtualbox.org):
+The tasks are defined in the Makefile.
 
-  vagrant up
-  vagrant ssh
-  cd /vagrant
+To run the app in dev mode:
 
+    $ make start # run in background
+    $ make logs # follow logs
+    $ make stop # stop all runing
 
-To start the test server, available at http://192.168.50.16:9292:
+This will take a while the first time, as it download the needed services (like couchdb, elasticsearch and etc).
 
-  rackup
+Other relevant tasks:
 
-Run tests:
-
-  rspec tests/\*.rb
-
-Build the container for deployment:
-
-
-  docker build -t cncflora/checklist .
-  docker push cncflora/checklist 
-
+    $ make test # run unit tests
+    $ make build # builds docker container
+    $ make push # pushes the container
 
 ## License
 
-Apache License 2.0
+Licensed under the Apache License 2.0.
 
