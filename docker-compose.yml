@@ -1,6 +1,6 @@
 checklist:
     build: .
-    container_name: checklist
+    name: checklist
     ports:
         - 8081:80
     volumes:
@@ -14,14 +14,14 @@ checklist:
         - RACK_ENV=development
 elasticsearch:
     image: cncflora/elasticsearch
-    container_name: elasticsearch
+    name: elasticsearch
     ports:
         - 9200:9200
     volumes:
         - /var/data/elasticsearch/data:/usr/share/elasticsearch/data:rw
 couchdb:
     image: cncflora/couchdb
-    container_name: couchdb
+    name: couchdb
     ports:
         - 5984:5984
         - 9001
@@ -29,14 +29,14 @@ couchdb:
         - /var/data/couchdb:/var/lib/couchdb:rw
 connect:
     image: cncflora/connect
-    container_name: connect
+    name: connect
     ports:
         - 8080:80
     volumes:
         - /var/data/connect:/var/floraconnect:rw
 floradata:
     image: cncflora/floradata
-    container_name: floradata
+    name: floradata
     ports:
         - 8181:80
         - 9005:9001

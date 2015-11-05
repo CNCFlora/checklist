@@ -9,7 +9,7 @@ require 'sinatra/reloader' if development?
 
 require 'securerandom'
 
-require 'cncflora_commons'
+require_relative 'commons'
 
 setup 'config.yml'
 
