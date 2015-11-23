@@ -104,6 +104,21 @@ get "/:db/edit/family/:family" do
     species_by_family = []
     species.each do |specie|
         specie["synonyms"] = search(params[:db],"taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"").sort_by { |element| element["scientificNameWithoutAuthorship"]}
+
+        currentTaxon = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie["scientificNameWithoutAuthorship"]}")["result"]
+
+        if currentTaxon.nil? then
+          specie["not_found"]=true;
+        elsif currentTaxon["scientificNameWithoutAuthorship"] != specie['scientificNameWithoutAuthorship'] then
+          specie["changed"]=true
+        else
+          syns = specie["synonyms"].map {|s| s["scientificNameWithoutAuthorship"]} .sort().join(",")
+          fsyns = currentTaxon["synonyms"].map {|s| s["scientificNameWithoutAuthorship"]} .sort().join(",")
+          if syns != fsyns then
+            specie["changed"]=true
+          end
+        end
+
         species_by_family << specie
     end
     species_by_family = species_by_family.sort_by { |element| element["scientificNameWithoutAuthorship"]}

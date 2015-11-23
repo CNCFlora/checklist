@@ -18,6 +18,12 @@
                         <span>{{scientificNameWithoutAuthorship}}</span>
                       </a>
                       {{scientificNameAuthorship}}
+                      {{#not_found}}
+                      <span class="glyphicon glyphicon-warning-sign"></span>
+                      {{/not_found}}
+                      {{#changed}}
+                      <span class="glyphicon glyphicon-warning-sign"></span>
+                      {{/changed}}
                     </td>
                     <td><a href="{{base}}/{{db}}/delete/specie/{{scientificNameWithoutAuthorship}}" class="glyphicon glyphicon-remove"></a></td>
               </tr>
