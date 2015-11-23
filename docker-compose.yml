@@ -4,7 +4,7 @@ checklist:
     ports:
         - 8081:80
     volumes:
-        - .:/var/www
+        - .:/opt/app
     links:
         - elasticsearch
         - couchdb
