@@ -16,7 +16,7 @@ setup 'config.yml'
 def require_logged_in
     redirect("#{settings.base}/?back_to=#{request.path_info}") unless is_authenticated?
 end
- 
+
 def is_authenticated?
     return !!session[:logged]
 end
@@ -113,9 +113,11 @@ get "/:db/edit/family/:family" do
           specie["changed"]=true
         else
           syns = specie["synonyms"].map {|s| s["scientificNameWithoutAuthorship"]} .sort().join(",")
-          fsyns = currentTaxon["synonyms"].map {|s| s["scientificNameWithoutAuthorship"]} .sort().join(",")
-          if syns != fsyns then
-            specie["changed"]=true
+          if !currentTaxon["synonyms"].nil? then
+            fsyns = currentTaxon["synonyms"].map {|s| s["scientificNameWithoutAuthorship"]} .sort().join(",")
+            if syns != fsyns then
+              specie["changed"]=true
+            end
           end
         end
 
@@ -136,7 +138,7 @@ post "/:db/insert/new" do
         if params["taxonomicStatus"] == 'synonym' && !params.has_key?("acceptedNameUsage")
             return 400, "Missing accepted name #{params}"
         else
-            if params["taxonomicStatus"]=='accepted' 
+            if params["taxonomicStatus"]=='accepted'
                 params["acceptedNameUsage"] = params["scientificName"]
             end
             id = SecureRandom.uuid
@@ -150,13 +152,13 @@ post "/:db/insert/new" do
                 "taxonRank"=>params["taxonRank"],
                 "taxonomicStatus"=>params["taxonomicStatus"],
                 "acceptedNameUsage"=>params["acceptedNameUsage"],
-                "metadata" => { 
+                "metadata" => {
                     "identifier"=>id,
-                    "type"=>"taxon", 
-                    "created"=>Time.now.to_i, 
-                    "modified"=>Time.now.to_i, 
-                    "creator"=>"#{session[:user]["name"]}", 
-                    "contributor"=>"#{session[:user]["name"]}", 
+                    "type"=>"taxon",
+                    "created"=>Time.now.to_i,
+                    "modified"=>Time.now.to_i,
+                    "creator"=>"#{session[:user]["name"]}",
+                    "contributor"=>"#{session[:user]["name"]}",
                     "contact"=>"#{session[:user]["email"]}",
                     "source"=>"User"
                 }
@@ -205,13 +207,13 @@ post "/:db/insert/specie" do
 
   if result["error"]
 
-    metadata = { 
+    metadata = {
       "identifier"=>doc["taxonID"],
-      "type"=>"taxon", 
-      "created"=>Time.now.to_i, 
-      "modified"=>Time.now.to_i, 
-      "creator"=>"#{session[:user]["name"]}", 
-      "contributor"=>"#{session[:user]["name"]}", 
+      "type"=>"taxon",
+      "created"=>Time.now.to_i,
+      "modified"=>Time.now.to_i,
+      "creator"=>"#{session[:user]["name"]}",
+      "contributor"=>"#{session[:user]["name"]}",
       "contact"=>"#{session[:user]["email"]}" ,
       "source"=> doc["source"]
     }
@@ -220,7 +222,7 @@ post "/:db/insert/specie" do
     doc["synonyms"].each{ |syn|
       syn["_id"] = syn["taxonID"]
       syn["metadata"] = metadata.clone
-      result = http_post( "#{ settings.couchdb }/#{params[:db]}", syn ) 
+      result = http_post( "#{ settings.couchdb }/#{params[:db]}", syn )
       index(params[:db],syn)
     }
     end
