@@ -7,6 +7,7 @@ development:
     elasticsearch: "http://elasticsearch:9200"
     floradata: "http://floradata"
     floradata_url: "http://localhost:8181"
+    servicos: "http://servicos.jbrj.gov.br/flora"
 test:
     lang: "pt"
     base: ""
@@ -16,6 +17,7 @@ test:
     elasticsearch: "http://elasticsearch:9200"
     floradata: "http://floradata"
     floradata_url: "http://localhost:8181"
+    servicos: "http://servicos.jbrj.gov.br/flora"
 production:
     lang: "pt"
     base: "/checklist"
@@ -27,3 +29,4 @@ production:
     floradata_url: "http://$HOST/floradata"
     profiles: "http://profiles"
     profiles_url: "http://$HOST/profiles"
+    servicos: "http://servicos.jbrj.gov.br/flora"

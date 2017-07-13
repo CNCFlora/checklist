@@ -106,6 +106,12 @@ get "/:db/edit/family/:family" do
         specie["synonyms"] = search(params[:db],"taxon", "taxonomicStatus:\"synonym\" AND acceptedNameUsage:\"#{specie["scientificNameWithoutAuthorship"]}*\"").sort_by { |element| element["scientificNameWithoutAuthorship"]}
 
         currentTaxon = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie["scientificNameWithoutAuthorship"]}")["result"]
+        ###
+        endemic = http_get("http://servicos.jbrj.gov.br/flora/endemism/#{specie['scientificNameWithoutAuthorship']}")["result"]
+
+        if(!endemic["endemism"].nil? && endemic["endemism"] == "Endemic") then
+          specie["endemic"]=true;
+        end
 
         if currentTaxon.nil? then
           specie["not_found"]=true;

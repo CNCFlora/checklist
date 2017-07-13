@@ -18,6 +18,9 @@
                         <span>{{scientificNameWithoutAuthorship}}</span>
                       </a>
                       {{scientificNameAuthorship}}
+                      {{#endemic}}
+                      <span class="glyphicon glyphicon-leaf"></span>
+                      {{/endemic}}
                       {{#not_found}}
                       <span class="glyphicon glyphicon-warning-sign"></span>
                       {{/not_found}}
