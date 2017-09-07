@@ -79,18 +79,22 @@ get "/:db" do
     families = []
 
     species.each do |specie|
-        families << specie["family"]
+        families << specie["family"].upcase
     end
     families = families.uniq.sort
 
     docs = []
     families.each do |family|
         doc = { "name"=>family.upcase, "species_amount"=>0 }
+        if family == "ANEMIACEAE" || family == "ANNONACEAE"
+          puts species.select{ |specie| specie["family"].upcase == family.upcase }.count
+        end
         doc["species_amount"] = species.select{ |specie| specie["family"].upcase == family.upcase }.count
         docs << doc
     end
 
     families = docs
+    puts families
     view :families, {:families=>families,:db=>params[:db]}
 end
 
