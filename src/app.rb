@@ -94,7 +94,6 @@ get "/:db" do
     end
 
     families = docs
-    puts families
     view :families, {:families=>families,:db=>params[:db]}
 end
 
