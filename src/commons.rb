@@ -5,7 +5,11 @@ require 'net/http'
 require 'yaml'
 
 def http_get(uri)
-    JSON.parse(Net::HTTP.get(URI(uri)))
+  JSON.parse(Net::HTTP.get(URI(uri)))
+end
+
+def http_get_quirks_mode(uri)
+    JSON.parse(Net::HTTP.get(URI(uri)).to_json, :quirks_mode => true)
 end
 
 def http_post(uri,doc)
@@ -30,7 +34,7 @@ def http_post(uri,doc)
     JSON.parse(response.body)
 end
 
-def http_put(uri,doc) 
+def http_put(uri,doc)
     uri = URI.parse(uri)
     http = Net::HTTP.new(uri.host, uri.port)
 
@@ -135,4 +139,3 @@ def setup(file)
 
     @config
 end
-

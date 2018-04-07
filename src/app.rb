@@ -110,7 +110,8 @@ get "/:db/edit/family/:family" do
 
         currentTaxon = http_get("#{settings.floradata}/api/v1/specie?scientificName=#{specie["scientificNameWithoutAuthorship"]}")["result"]
 
-        endemic = http_get(URI.encode("http://servicos.jbrj.gov.br/flora/endemism/#{specie['scientificNameWithoutAuthorship']}"))["result"]
+        encoded_url = URI.encode("#{settings.floradata}/endemism/#{specie['scientificNameWithoutAuthorship']}")
+        endemic = http_get_quirks_mode(URI.parse(encoded_url))["result"]
 
         if !endemic.nil? then
           if(!endemic[0]["endemism"].nil? && endemic[0]["endemism"] == "Endemic") then
